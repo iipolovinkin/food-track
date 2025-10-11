@@ -23,31 +23,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event trackEvent(EventRequestDto eventRequest) {
-        log.info("Tracking event: type={}, userId={}, timestamp={}", 
-                 eventRequest.eventType(), eventRequest.userId(), eventRequest.timestamp());
+        log.info("Tracking event: type={}, userId={}, timestamp={}",
+                eventRequest.eventType(), eventRequest.userId(), eventRequest.timestamp());
 
-        // Sanitize inputs to prevent injection attacks
-        if (InputSanitizer.isUnsafeString(eventRequest.eventType()) ||
-            InputSanitizer.isUnsafeString(eventRequest.userId()) ||
-            InputSanitizer.isUnsafeString(eventRequest.sessionId()) ||
-            InputSanitizer.isUnsafeMap(eventRequest.properties())) {
-            log.warn("Potentially unsafe input detected in event request: type={}, userId={}", 
-                     eventRequest.eventType(), eventRequest.userId());
-            throw new IllegalArgumentException("Request contains potentially unsafe content");
-        }
+        sanitizeInputs(eventRequest);
 
         // Create event entity from DTO
-        Event event = new Event();
-        event.setEventType(eventRequest.eventType());
-        event.setUserId(eventRequest.userId());
-        event.setSessionId(eventRequest.sessionId());
-        event.setTimestamp(eventRequest.timestamp());
-        event.setProperties(eventRequest.properties());
+        Event event = map(eventRequest);
 
         // Save to database
         Event savedEvent = eventRepository.save(event);
         log.debug("Event saved with ID: {}", savedEvent.getId());
-        
+
         return savedEvent;
     }
 
@@ -86,12 +73,34 @@ public class EventServiceImpl implements EventService {
         double conversionRate = viewedCount > 0 ? (double) orderedCount / viewedCount * 100 : 0;
 
         return new ConversionFunnelResponse(
-            category,
-            viewedCount,
-            addedCount,
-            orderedCount,
-            conversionRate,
-            Map.of("timeRange", String.format("%s to %s", start, end))
+                category,
+                viewedCount,
+                addedCount,
+                orderedCount,
+                conversionRate,
+                Map.of("timeRange", String.format("%s to %s", start, end))
         );
     }
+
+    private static Event map(EventRequestDto eventRequest) {
+        Event event = new Event();
+        event.setEventType(eventRequest.eventType());
+        event.setUserId(eventRequest.userId());
+        event.setSessionId(eventRequest.sessionId());
+        event.setTimestamp(eventRequest.timestamp());
+        event.setProperties(eventRequest.properties());
+        return event;
+    }
+
+    private static void sanitizeInputs(EventRequestDto eventRequest) {
+        if (InputSanitizer.isUnsafeString(eventRequest.eventType())
+                || InputSanitizer.isUnsafeString(eventRequest.userId())
+                || InputSanitizer.isUnsafeString(eventRequest.sessionId())
+                || InputSanitizer.isUnsafeMap(eventRequest.properties())) {
+            log.warn("Potentially unsafe input detected in event request: type={}, userId={}",
+                    eventRequest.eventType(), eventRequest.userId());
+            throw new IllegalArgumentException("Request contains potentially unsafe content");
+        }
+    }
+
 }
