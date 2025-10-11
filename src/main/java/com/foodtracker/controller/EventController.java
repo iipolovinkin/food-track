@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -73,8 +74,8 @@ public class EventController {
                 return ResponseEntity.badRequest().body(null);
             }
 
-            java.time.LocalDateTime startDateTime = java.time.LocalDateTime.parse(startDate);
-            java.time.LocalDateTime endDateTime = java.time.LocalDateTime.parse(endDate);
+            LocalDateTime startDateTime = LocalDateTime.parse(startDate);
+            LocalDateTime endDateTime = LocalDateTime.parse(endDate);
 
             ConversionFunnelResponse analytics = eventService.getConversionFunnelAnalytics(category, startDateTime, endDateTime);
             return ResponseEntity.ok(analytics);
