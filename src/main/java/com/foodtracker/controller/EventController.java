@@ -4,7 +4,7 @@ import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.dto.analytics.ConversionFunnelResponse;
 import com.foodtracker.model.Event;
 import com.foodtracker.service.EventService;
-import com.foodtracker.util.InputSanitizer;
+import com.foodtracker.validation.UnsafeString;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -65,14 +65,13 @@ public class EventController {
     }
 
     @GetMapping("/analytics/conversion-funnel")
-    public ResponseEntity<ConversionFunnelResponse> getConversionFunnel(@RequestParam String category,
+    public ResponseEntity<ConversionFunnelResponse> getConversionFunnel(@RequestParam
+                                                                        @Valid
+                                                                        @UnsafeString String category,
                                                                         @RequestParam String startDate,
                                                                         @RequestParam String endDate) {
         try {
             // Sanitize category parameter to prevent injection attacks
-            if (InputSanitizer.isUnsafeString(category)) {
-                return ResponseEntity.badRequest().body(null);
-            }
 
             LocalDateTime startDateTime = LocalDateTime.parse(startDate);
             LocalDateTime endDateTime = LocalDateTime.parse(endDate);

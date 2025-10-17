@@ -5,7 +5,6 @@ import com.foodtracker.dto.analytics.ConversionFunnelResponse;
 import com.foodtracker.model.Event;
 import com.foodtracker.repository.EventRepository;
 import com.foodtracker.service.EventService;
-import com.foodtracker.util.InputSanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,6 @@ public class EventServiceImpl implements EventService {
     public Event trackEvent(EventRequestDto eventRequest) {
         log.info("Tracking event: type={}, userId={}, timestamp={}",
                 eventRequest.eventType(), eventRequest.userId(), eventRequest.timestamp());
-
-        sanitizeInputs(eventRequest);
 
         // Create event entity from DTO
         Event event = map(eventRequest);
@@ -90,17 +87,6 @@ public class EventServiceImpl implements EventService {
         event.setTimestamp(eventRequest.timestamp());
         event.setProperties(eventRequest.properties());
         return event;
-    }
-
-    private static void sanitizeInputs(EventRequestDto eventRequest) {
-        if (InputSanitizer.isUnsafeString(eventRequest.eventType())
-                || InputSanitizer.isUnsafeString(eventRequest.userId())
-                || InputSanitizer.isUnsafeString(eventRequest.sessionId())
-                || InputSanitizer.isUnsafeMap(eventRequest.properties())) {
-            log.warn("Potentially unsafe input detected in event request: type={}, userId={}",
-                    eventRequest.eventType(), eventRequest.userId());
-            throw new IllegalArgumentException("Request contains potentially unsafe content");
-        }
     }
 
 }

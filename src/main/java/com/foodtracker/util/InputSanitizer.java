@@ -6,6 +6,16 @@ import java.util.Map;
 public class InputSanitizer {
 
     /**
+     * Validates if the input string is safe (no malicious code)
+     *
+     * @param input The string to validate
+     * @return true if input is safe, false otherwise
+     */
+    public static boolean isSafeString(String input) {
+        return !isUnsafeString(input);
+    }
+
+    /**
      * Validates if the input string is unsafe (malicious code)
      *
      * @param input The string to validate
@@ -45,28 +55,18 @@ public class InputSanitizer {
             }
 
             // Validate value
-            if (entry.getValue() instanceof String) {
-                if (isUnsafeString((String) entry.getValue())) {
-                    return true;
-                }
-            } else if (entry.getValue() instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> nestedMap = (Map<String, Object>) entry.getValue();
-                if (isUnsafeMap(nestedMap)) {
-                    return true;
-                }
-            } else if (entry.getValue() instanceof Collection) {
-                // For collections, we'll do a basic check 
-                Collection<?> collection = (Collection<?>) entry.getValue();
+            Object value = entry.getValue();
+            if (value instanceof String string) {
+                return isUnsafeString(string);
+            } else if (value instanceof Map) {
+                return isUnsafeMap((Map<String, Object>) value);
+            } else if (value instanceof Collection<?> collection) {
+                // For collections, we'll do a basic check
                 for (Object item : collection) {
                     if (item instanceof String && isUnsafeString((String) item)) {
                         return true;
-                    } else if (item instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> nestedMap = (Map<String, Object>) item;
-                        if (isUnsafeMap(nestedMap)) {
-                            return true;
-                        }
+                    } else if (item instanceof Map nestedMap) {
+                        return isUnsafeMap((Map<String, Object>) nestedMap);
                     }
                 }
             }
