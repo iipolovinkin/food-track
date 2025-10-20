@@ -71,8 +71,6 @@ public class EventController {
                                                                         @RequestParam String startDate,
                                                                         @RequestParam String endDate) {
         try {
-            // Sanitize category parameter to prevent injection attacks
-
             LocalDateTime startDateTime = LocalDateTime.parse(startDate);
             LocalDateTime endDateTime = LocalDateTime.parse(endDate);
 

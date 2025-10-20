@@ -1,5 +1,6 @@
 package com.foodtracker.dto;
 
+import com.foodtracker.validation.UnsafeMap;
 import com.foodtracker.validation.UnsafeString;
 import com.foodtracker.validation.ValidProperties;
 import jakarta.validation.constraints.NotBlank;
@@ -31,6 +32,7 @@ public record EventRequestDto(
         LocalDateTime timestamp,
 
         @ValidProperties
+        @UnsafeMap
         Map<String, Object> properties
 ) {
 }

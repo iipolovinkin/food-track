@@ -30,7 +30,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE E.EVENT_TYPE = :eventType
             AND E.TIMESTAMP
             BETWEEN :start AND :end
-            AND E.PROPERTIES ->> 'category' = :CATEGORY
+            AND E.PROPERTIES ->> 'category' = :category
             """,
             nativeQuery = true)
     long countByEventTypeAndCategoryAndTimestampBetween(
