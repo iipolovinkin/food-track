@@ -1,20 +1,20 @@
 package com.foodtracker.controller;
 
-import com.tngtech.archunit.core.domain.*;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.core.domain.JavaParameter;
+import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchCondition;
-import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
+import com.tngtech.archunit.lang.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,79 +35,86 @@ public class SwaggerAnnotationTest {
 
 
     @ArchTest
-    static final ArchRule controllers_should_use_annotated_dtos =
-            classes()
-                    .that().areAnnotatedWith(RestController.class)
-                    .should(new ArchCondition<JavaClass>("use only documented DTOs") {
-                        @Override
-                        public void check(JavaClass controller, ConditionEvents events) {
-                            log.info("controller: {}", controller);
-                            // Получаем все DTO классы, используемые в контроллере (в параметрах и возвращаемых типах)
-                            Set<JavaClass> usedDtos = controller.getCodeUnits().stream()
-                                    .flatMap(method -> {
-                                        Stream<JavaType> parameterTypes = method.getParameters().stream()
-                                                .map(JavaParameter::getType);
-                                        JavaType returnType = method.getReturnType();
-                                        return Stream.concat(parameterTypes, Stream.of(returnType));
-                                    })
-                                    .filter(type -> type.toErasure().getPackageName().contains(".dto"))
-                                    .peek(type -> log.info("type2: {}", type))
-                                    .map(JavaType::toErasure)
-                                    .collect(Collectors.toSet());
+    static final ArchRule controllers_should_use_annotated_dtos;
 
-                            log.info("usedDtos: {}", usedDtos);
-                            // Проверяем, что DTO используется
-                            for (JavaClass dto : usedDtos) {
-                                log.info("dto: {}", dto);
-                                // Проверяем, что DTO аннотирован @Schema
-                                if (!dto.isAnnotatedWith("Schema")) {
-                                    String message = String.format(
-                                            "Controller %s uses DTO %s without @Schema annotation",
-                                            controller.getSimpleName(),
-                                            dto.getSimpleName()
-                                    );
-                                    events.add(SimpleConditionEvent.violated(controller, message));
-                                }
-                                log.info(Schema.class.getName());
-                                // Проверяем поля DTO
-                                Set<String> undocumentedFields = dto.getFields().stream()
-                                        .filter(field -> !field.isAnnotatedWith(Schema.class.getName()))
-                                        .map(JavaMember::getName)
-                                        .collect(Collectors.toSet())
-                                        ;
-//                                        .count();
+    static {
+        ArchCondition<JavaClass> condition = new ArchCondition<>("use only documented DTOs") {
+            @Override
+            public void check(JavaClass controller, ConditionEvents events) {
+                log.info("controller: {}", controller);
+                // Получаем все DTO классы, используемые в контроллере (в параметрах и возвращаемых типах)
+                Set<JavaClass> usedDtos = controller.getCodeUnits().stream()
+                        .flatMap(method -> {
+                            Stream<JavaType> parameterTypes = method.getParameters().stream()
+                                    .map(JavaParameter::getType);
+                            JavaType returnType = method.getReturnType();
+                            return Stream.concat(parameterTypes, Stream.of(returnType));
+                        })
+                        .filter(type -> type.toErasure().getPackageName().contains(".dto"))
+                        .map(JavaType::toErasure)
+                        .collect(Collectors.toSet());
 
-                                Set<JavaField> schemas = dto.getFields().stream()
-//                                        .filter(f->f.isStatiFinal())
-                                        .filter(field -> field.isAnnotatedWith(Schema.class))
-                                        .peek(this::check)
-                                        .collect(Collectors.toSet());
-                                log.info("schemas: {}", schemas);
-                                if (!undocumentedFields.isEmpty()) {
-                                    String message = String.format(
-                                            "DTO %s has %d fields without @Schema annotation, %s",
-                                            dto.getSimpleName(), undocumentedFields.size(), undocumentedFields
-                                    );
-                                    events.add(SimpleConditionEvent.violated(controller, message));
-                                }
-                            }
-                        }
+                log.info("usedDtos: {}", usedDtos);
+                // Проверяем, что DTO используется
+                for (JavaClass dto : usedDtos) {
+                    validate(controller, dto).forEach(events::add);
+                }
+            }
 
-                        //                                    if ()
-                        private void check(JavaField javaField) {
-                            log.info("javaField: {}", javaField.getName());
-                            javaField.getAnnotations().stream()
-                                    .forEach(annotation -> {
-                                log.info("annotation: {}", annotation);
-                                annotation.getProperties()
-                                        .entrySet()
-                                        .stream()
-                                        .filter(f-> Objects.nonNull(f.getValue()))
-                                        .filter(f-> !(f instanceof Collection) || !((Collection) f).isEmpty())
-                                        .forEach(e -> {
-                                    log.info("k: {}, v: {}", e.getKey(), e.getValue());
-                                });
-                            });
-                        }
-                    });
+            private List<ConditionEvent> validate(JavaClass controller, JavaClass dto) {
+                List<ConditionEvent> errors = new ArrayList<>();
+                log.info("dto: {}", dto);
+                // Проверяем, что DTO аннотирован @Schema
+                if (!dto.isAnnotatedWith(Schema.class)) {
+                    String message = String.format(
+                            "Controller %s uses DTO %s without @Schema annotation",
+                            controller.getSimpleName(),
+                            dto.getSimpleName()
+                    );
+                    errors.add(SimpleConditionEvent.violated(controller, message));
+                }
+                log.info(Schema.class.getName());
+                // Проверяем поля DTO
+                dto.getFields().stream()
+                        .map(f -> validateField(f, dto.getSimpleName()))
+                        .filter(Objects::nonNull)
+                        .map(m -> SimpleConditionEvent.violated(controller, m))
+                        .forEach(errors::add);
+                return errors;
+            }
+        };
+        controllers_should_use_annotated_dtos = classes()
+                .that().areAnnotatedWith(RestController.class)
+                .should(condition)
+                .because("Все публичные методы контроллеров должны документироваться в Swagger");
+    }
+
+    private static String validateField(JavaField field, String className) {
+        Optional<Schema> schema = field.tryGetAnnotationOfType(Schema.class);
+        if (schema.isEmpty()) {
+            return String.format(
+                    "DTO %s has field %s without @Schema annotation",
+                    className, field.getName()
+            );
+        }
+        return schema
+                .map(SwaggerAnnotationTest::validateFieldSchema)
+                .map(m -> String.format(
+                        "DTO %s has field %s with @Schema annotation, but %s",
+                        className, field.getName(), m))
+                .orElse(null);
+    }
+
+    private static String validateFieldSchema(Schema a) {
+        List<String> errors = new ArrayList<>();
+        if (!StringUtils.hasText(a.description())) {
+            errors.add("description should be not empty");
+        }
+        if (!StringUtils.hasText(a.example())
+                && ArrayUtils.isEmpty(a.examples())
+                && ArrayUtils.isEmpty(a.exampleClasses())) {
+            errors.add("example should be not empty");
+        }
+        return errors.isEmpty() ? null : String.join(", ", errors);
+    }
 }

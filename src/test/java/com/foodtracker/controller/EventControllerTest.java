@@ -43,7 +43,7 @@ class EventControllerTest {
         when(eventService.getAllEvents()).thenReturn(List.of(new Event()));
 
         ResponseEntity<List<Event>> result = eventController.getAllEvents();
-        Assertions.assertEquals(new ResponseEntity<List<Event>>(List.of(new Event()), null, 0), result);
+        Assertions.assertEquals(new ResponseEntity<>(List.of(new Event()), null, 0), result);
     }
 
     @Test
@@ -51,7 +51,7 @@ class EventControllerTest {
         when(eventService.getEventsByType(anyString())).thenReturn(List.of(new Event()));
 
         ResponseEntity<List<Event>> result = eventController.getEventsByType("eventType");
-        Assertions.assertEquals(new ResponseEntity<List<Event>>(List.of(new Event()), null, 0), result);
+        Assertions.assertEquals(new ResponseEntity<>(List.of(new Event()), null, 0), result);
     }
 
     @Test
@@ -59,7 +59,7 @@ class EventControllerTest {
         when(eventService.getEventsByUser(anyString())).thenReturn(List.of(new Event()));
 
         ResponseEntity<List<Event>> result = eventController.getEventsByUser("userId");
-        Assertions.assertEquals(new ResponseEntity<List<Event>>(List.of(new Event()), null, 0), result);
+        Assertions.assertEquals(new ResponseEntity<>(List.of(new Event()), null, 0), result);
     }
 
     @Test
@@ -67,7 +67,7 @@ class EventControllerTest {
         when(eventService.getDistinctUserCountByEventTypeAndDate(anyString(), any(LocalDateTime.class))).thenReturn(0L);
 
         ResponseEntity<Long> result = eventController.getDailyActiveUsers("eventType", "date");
-        Assertions.assertEquals(new ResponseEntity<Long>(Long.valueOf(1), null, 0), result);
+        Assertions.assertEquals(new ResponseEntity<>(Long.valueOf(1), null, 0), result);
     }
 
     @Test
@@ -75,8 +75,6 @@ class EventControllerTest {
         when(eventService.getConversionFunnelAnalytics(anyString(), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(new ConversionFunnelResponse("category", 0L, 0L, 0L, 0d, Map.of("additionalMetrics", "additionalMetrics")));
 
         ResponseEntity<ConversionFunnelResponse> result = eventController.getConversionFunnel("category", "startDate", "endDate");
-        Assertions.assertEquals(new ResponseEntity<ConversionFunnelResponse>(new ConversionFunnelResponse("category", 0L, 0L, 0L, 0d, Map.of("additionalMetrics", "additionalMetrics")), null, 0), result);
+        Assertions.assertEquals(new ResponseEntity<>(new ConversionFunnelResponse("category", 0L, 0L, 0L, 0d, Map.of("additionalMetrics", "additionalMetrics")), null, 0), result);
     }
 }
-
-//Generated with love by TestMe :) Please raise issues & feature requests at: https://weirddev.com/forum#!/testme
