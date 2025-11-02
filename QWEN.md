@@ -1,32 +1,44 @@
-# FoodTrack - Analytics for Food Startup
+# FoodTrack - Analytics Event Tracking System
 
 ## Project Overview
 
-FoodTrack is an analytics event tracking system designed for a food delivery app with pizza and burger categories. The primary goal is to understand user behavior and measure the effectiveness of the conversion funnel from opening the app to placing an order.
+FoodTrack is an analytics event tracking system built with Java Spring Boot for a food delivery application. It tracks user interactions across pizza and burger categories to analyze the conversion funnel from opening the app to placing an order. The system uses PostgreSQL with JSONB for flexible event storage and enables analytics like DAU, conversion funnels, and popular item identification.
 
-The project implements an **Event Tracker** focusing on tracking user interactions across two categories: pizza and burgers. The core objective is to measure the user journey through the **funnel: opening → viewing → adding to cart → ordering**.
+## Technology Stack
 
-### Key Features
-- **Unified Event Structure**: Uses a flexible JSON-based event format suitable for all event types
-- **Flexible Properties**: Supports `properties` as JSON objects for contextual data
-- **PostgreSQL Storage**: Stores events in PostgreSQL using JSONB for flexible querying
-- **Analytics Support**: Provides metrics like DAU, conversion funnels, and popularity analysis
+- **Backend**: Java 21 with Spring Boot 3.5.6
+- **Database**: PostgreSQL with JSONB support for flexible property storage
+- **Dependencies**: 
+  - Spring Boot Web, Data JPA, Security
+  - Lombok for reducing boilerplate code
+  - Hypersistence Utils for JSONB handling
+  - SpringDoc OpenAPI for API documentation
+  - PostgreSQL driver
+- **Build Tool**: Maven
 
-### Tech Stack
-- **Backend**: Java (JDK 21)
-- **Database**: PostgreSQL with JSONB support
-- **IDE**: IntelliJ IDEA (project files in `.idea/` directory)
+## Architecture
 
-## Event Structure
+The application follows a typical Spring Boot architecture with the following packages:
 
-The system uses a unified, flexible event format:
+### Core Components
+- **Controller**: REST API endpoints in `EventController.java` handling event tracking and analytics
+- **Service**: Business logic in `EventService.java` with data validation and processing
+- **Model**: JPA entity `Event.java` representing stored events
+- **Repository**: Data access layer with JPA repositories
+- **DTOs**: Data transfer objects for API requests and responses
+- **Config**: Configuration classes
+- **Validation**: Custom validation annotations and utilities
+- **Util**: Utility classes
+- **Generator**: Test data generation components
 
+### Event Tracking API
+The system exposes a `/api/track` endpoint that accepts events with the following structure:
 ```json
 {
   "eventType": "screen_viewed",
   "userId": "user_789",
   "sessionId": "sess_abc123",
-  "timestamp": "2024-05-20T18:42:10Z",
+  "timestamp": "2024-05-20T18:42:10",
   "properties": {
     "screen": "menu",
     "category": "pizza"
@@ -34,103 +46,104 @@ The system uses a unified, flexible event format:
 }
 ```
 
-### Mandatory Fields
-| Field | Type | Description |
-|-------|------|-------------|
-| `eventType` | string | Event name (`screen_viewed`, `item_added`, etc.) |
-| `userId` | string | Unique user ID (temporary for unauthenticated users) |
-| `sessionId` | string | Session ID (useful for tracking user path) |
-| `timestamp` | ISO 8601 | Event time (preferably generated on client) |
+## Key Features
 
-### Optional Fields
-Any contextual data can be stored in `properties`: `item_id`, `price`, `category`, `screen`, `error_code`, etc.
+### 1. Flexible Event Schema
+- Universal event format with mandatory fields: eventType, userId, sessionId, timestamp
+- Flexible properties stored as JSONB for additional contextual data
+- Supports all required event types: app_opened, screen_viewed, item_viewed, item_added_to_cart, checkout_started, order_placed, payment_failed
 
-## Tracked Events
+### 2. Analytics Capabilities
+- Daily Active Users (DAU) calculation
+- Conversion funnel analytics for pizza and burger categories
+- Popular items identification
+- Cart-to-order conversion rate metrics
 
-The system monitors 5-6 key events for funnel and behavior analytics:
-
-| Event | Trigger | Example Properties |
-|-------|---------|-------------------|
-| `app_opened` | App launch | `{ "platform": "android", "version": "1.2.0" }` |
-| `screen_viewed` | Screen opened | `{ "screen": "menu", "category": "pizza" }` |
-| `item_viewed` | Item card opened | `{ "item_id": "pizza_pepperoni", "category": "pizza", "price": 599 }` |
-| `item_added_to_cart` | Added to cart | `{ "item_id": "burger_classic", "category": "burger", "quantity": 2 }` |
-| `checkout_started` | Started checkout | `{ "cart_total": 1198, "items_count": 2 }` |
-| `order_placed` | Order completed | `{ "order_id": "ord_12345", "total": 1198, "payment_method": "card" }` |
-| `payment_failed` | Payment failed | `{ "error_code": "card_declined", "order_id": "ord_12345" }` |
+### 3. Test Data Generation
+- Comprehensive test data generator with realistic user journeys
+- Configurable number of users and sessions
+- Simulated conversion funnels and error scenarios
+- Analytics validation capabilities
 
 ## Database Schema
 
-The system uses a single `events` table in PostgreSQL:
+The system uses a single `events` table with these columns:
+- id: BIGSERIAL PRIMARY KEY
+- event_type: VARCHAR(100) NOT NULL
+- user_id: VARCHAR(100) NOT NULL
+- session_id: VARCHAR(100) NOT NULL
+- timestamp: TIMESTAMPTZ NOT NULL
+- properties: JSONB
 
-```sql
-CREATE TABLE events (
-    id BIGSERIAL PRIMARY KEY,
-    event_type VARCHAR(100) NOT NULL,
-    user_id VARCHAR(100) NOT NULL,
-    session_id VARCHAR(100) NOT NULL,
-    timestamp TIMESTAMPTZ NOT NULL,
-    properties JSONB
-);
-
--- Indexes for analytics
-CREATE INDEX idx_events_type_time ON events (event_type, timestamp);
-CREATE INDEX idx_events_user ON events (user_id);
-CREATE INDEX idx_events_props_category ON events ((properties->>'category'));
-```
-
-## Available Metrics
-
-Based on the tracked events, the system can compute:
-
-1. **DAU (Daily Active Users)**:
-   ```sql
-   SELECT COUNT(DISTINCT user_id) 
-   FROM events 
-   WHERE event_type = 'app_opened' 
-     AND timestamp >= '2024-05-20';
-   ```
-
-2. **Conversion Funnels**: Track unique users moving from category viewing → adding → ordering
-
-3. **Top 5 Popular Items**:
-   ```sql
-   SELECT properties->>'item_id' AS item, COUNT(*) 
-   FROM events 
-   WHERE event_type = 'item_viewed' 
-   GROUP BY item 
-   ORDER BY COUNT DESC 
-   LIMIT 5;
-   ```
-
-4. **Cart-to-Order Conversion Rate**: 
-   `(order_placed count) / (checkout_started count) * 100%`
+Optimized with indexes on event_type+timestamp, user_id, and category property.
 
 ## Building and Running
 
-Since this is a Java project using JDK 21:
-
 ### Prerequisites
-- Java Development Kit (JDK) 21
+- Java 21
 - PostgreSQL database server
 
 ### Setup Instructions
-1. Initialize the PostgreSQL database with the schema provided above
-2. Configure database connection settings
-3. The project likely uses Maven or Gradle for dependency management (though configuration files may not be committed to the repository yet)
+1. Create a PostgreSQL database named `foodtracker`
+2. Update `application.properties` with correct database credentials if needed
+3. Build the application: `mvn clean install`
+4. Run the application: `mvn spring-boot:run` or `java -jar target/food-tracker-0.0.1-SNAPSHOT.jar`
 
-### For Developers
-- The project is configured for IntelliJ IDEA (as shown by `.idea/` directory)
-- The Maven runner is configured in `.idea/misc.xml`
-- Currently no build configuration files (pom.xml or build.gradle) are visible in the repository
+### Test Data Generation
+To generate test data, run the application with the argument `--generate-test-data`:
+`java -jar target/food-tracker-0.0.1-SNAPSHOT.jar --generate-test-data`
+
+## API Endpoints
+
+- `POST /api/track` - Track a new event
+- `GET /api/events` - Get all events
+- `GET /api/events/{eventType}` - Get events by type
+- `GET /api/users/{userId}/events` - Get events by user
+- `GET /api/analytics/dau?eventType=X&date=Y` - Get daily active users
+- `GET /api/analytics/conversion-funnel?category=X&startDate=Y&endDate=Z` - Get conversion funnel analytics
 
 ## Development Conventions
 
-- **Event Naming**: Use snake_case for event types (e.g., `app_opened`, `item_added_to_cart`)
-- **Properties**: Use camelCase for property keys in JSON objects
-- **Timestamps**: Use ISO 8601 format for all timestamps
-- **Category Tracking**: Include a `category` field in properties to distinguish between pizza and burger events
+- Uses Lombok annotations to reduce boilerplate code
+- Implements comprehensive validation for input data
+- Follows REST API best practices with proper HTTP status codes
+- Uses SLF4J with Lombok's @Slf4j annotation for logging
+- Implements proper error handling and validation
+- Uses record classes for immutable DTOs
+- Follows Spring Boot configuration and security best practices
+
+## Project Structure
+
+```
+src/
+├── main/
+│   ├── java/com/foodtracker/
+│   │   ├── config/          # Configuration classes
+│   │   ├── controller/      # REST API controllers
+│   │   ├── dto/             # Data transfer objects
+│   │   ├── exception/       # Custom exceptions
+│   │   ├── generator/       # Test data generation components
+│   │   ├── model/           # JPA entities
+│   │   ├── repository/      # JPA repositories
+│   │   ├── service/         # Business logic services
+│   │   ├── util/            # Utility classes
+│   │   ├── validation/      # Custom validation annotations
+│   │   └── FoodTrackerApplication.java  # Main application class
+│   └── resources/
+│       ├── application.properties         # Main configuration
+│       └── application-local.properties   # Local development configuration
+├── specifications/          # Project specifications
+└── test/                  # Test files
+```
 
 ## Testing
 
-The README mentions that demo data can be generated using a script that creates N users with event chains. This would be useful for testing the analytics capabilities.
+The project uses Spring Boot's testing framework with JUnit 5. Test classes are located in the `src/test` directory with the same package structure as the main source code.
+
+## Additional Features
+
+- OpenAPI (Swagger) documentation available at `/swagger-ui.html` and `/v3/api-docs`
+- Security implemented with Spring Security
+- JSON validation using Jackson and custom validation annotations
+- Database schema generation using JPA's ddl-auto=update setting
+- Comprehensive logging throughout the application
