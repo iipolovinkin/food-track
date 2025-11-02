@@ -1,5 +1,6 @@
 package com.foodtracker.generator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
  * The generator can be run by starting the Spring Boot application with the argument --generate-test-data, which will
  * execute the data generation process and subsequently validate the analytics capabilities of the system.
  */
+@Slf4j
 @Component
 public class TestDataGeneratorRunner implements CommandLineRunner {
 
@@ -17,10 +19,10 @@ public class TestDataGeneratorRunner implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         // Only run the generator if a specific argument is provided
         if (args.length > 0 && "--generate-test-data".equals(args[0])) {
-            System.out.println("Running Test Data Generator...");
+            log.info("Running Test Data Generator...");
             testDataManager.generateTestData();
         }
     }

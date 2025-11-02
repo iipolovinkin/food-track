@@ -3,11 +3,13 @@ package com.foodtracker.generator;
 import com.foodtracker.dto.analytics.ConversionFunnelResponse;
 import com.foodtracker.model.Event;
 import com.foodtracker.service.EventService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Component
 public class AnalyticsValidator {
 
@@ -19,16 +21,16 @@ public class AnalyticsValidator {
 
     public void validateDAU(String eventType, LocalDateTime date) {
         long dauCount = eventService.getDistinctUserCountByEventTypeAndDate(eventType, date);
-        System.out.println("DAU for " + eventType + " on " + date.toLocalDate() + ": " + dauCount);
+        log.info("DAU for {} on {}: {}", eventType, date.toLocalDate(), dauCount);
     }
 
     public void validateConversionFunnel(String category, LocalDateTime start, LocalDateTime end) {
         ConversionFunnelResponse response = eventService.getConversionFunnelAnalytics(category, start, end);
-        System.out.println("Conversion Funnel for " + category + ":");
-        System.out.println("  Viewed: " + response.getViewedCount());
-        System.out.println("  Added: " + response.getAddedCount());
-        System.out.println("  Ordered: " + response.getOrderedCount());
-        System.out.println("  Conversion Rate: " + response.getConversionRate() + "%");
+        log.info("Conversion Funnel for {}:", category);
+        log.info("  Viewed: {}", response.getViewedCount());
+        log.info("  Added: {}", response.getAddedCount());
+        log.info("  Ordered: {}", response.getOrderedCount());
+        log.info("  Conversion Rate: {}%", response.getConversionRate());
     }
 
     public void validatePopularItems() {
@@ -49,7 +51,7 @@ public class AnalyticsValidator {
                 .sorted(java.util.Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(5)
                 .forEach(entry ->
-                        System.out.println("  " + entry.getKey() + ": " + entry.getValue() + " views")
+                        log.info("  {}: {} views", entry.getKey(), entry.getValue())
                 );
     }
 
@@ -57,27 +59,28 @@ public class AnalyticsValidator {
         List<Event> checkoutStartedEvents = eventService.getEventsByType("checkout_started");
         List<Event> orderPlacedEvents = eventService.getEventsByType("order_placed");
 
-        double conversionRate = checkoutStartedEvents.size() > 0 ?
+        double conversionRate = !checkoutStartedEvents.isEmpty() ?
                 (double) orderPlacedEvents.size() / checkoutStartedEvents.size() * 100 : 0;
 
-        System.out.println("Cart-to-Order Conversion Rate: " +
-                String.format("%.2f", conversionRate) + "% " +
-                "(" + orderPlacedEvents.size() + "/" + checkoutStartedEvents.size() + ")");
+        log.info("Cart-to-Order Conversion Rate: {}% ({}/{})",
+                String.format("%.2f", conversionRate),
+                orderPlacedEvents.size(),
+                checkoutStartedEvents.size());
     }
 
     public void runAllValidations(LocalDateTime startDate, LocalDateTime endDate) {
-        System.out.println("\n--- Analytics Validation Results ---");
+        log.info("\n--- Analytics Validation Results ---");
 
         validateDAU("app_opened", startDate);
 
         validateConversionFunnel("pizza", startDate, endDate);
         validateConversionFunnel("burger", startDate, endDate);
 
-        System.out.println("Top 5 Popular Items:");
+        log.info("Top 5 Popular Items:");
         validatePopularItems();
 
         validateCartToOrderConversion();
 
-        System.out.println("--- End of Analytics Validation ---\n");
+        log.info("--- End of Analytics Validation ---\n");
     }
 }

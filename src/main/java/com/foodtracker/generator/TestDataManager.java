@@ -2,6 +2,8 @@ package com.foodtracker.generator;
 
 import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.generator.config.GeneratorConfig;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -9,8 +11,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
 
+@AllArgsConstructor
 @Component
+@Slf4j
 public class TestDataManager {
 
     private final GeneratorConfig config;
@@ -21,67 +27,33 @@ public class TestDataManager {
     private final ApiServiceClient apiServiceClient;
     private final AnalyticsValidator analyticsValidator;
 
-    public TestDataManager(
-            GeneratorConfig config,
-            UserGenerator userGenerator,
-            SessionGenerator sessionGenerator,
-            EventGenerator eventGenerator,
-            JourneyBuilder journeyBuilder,
-            ApiServiceClient apiServiceClient,
-            AnalyticsValidator analyticsValidator) {
-        this.config = config;
-        this.userGenerator = userGenerator;
-        this.sessionGenerator = sessionGenerator;
-        this.eventGenerator = eventGenerator;
-        this.journeyBuilder = journeyBuilder;
-        this.apiServiceClient = apiServiceClient;
-        this.analyticsValidator = analyticsValidator;
-    }
-
     public void generateTestData() {
-        System.out.println("Starting test data generation...");
-        System.out.println("Generating " + config.getUserCount() + " users");
+        long startTime = System.nanoTime();
+        log.info("Starting test data generation...");
+        log.info("Generating {} users", config.getUserCount());
 
         // Calculate date range for events
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(config.getDaysFromNow());
 
         List<String> users = userGenerator.generateUsers(config.getUserCount());
-        int successCount = 0;
-        int failureCount = 0;
 
-        for (int i = 0; i < users.size(); i++) {
-            String userId = users.get(i);
+        LocalDateTime sessionStart = getSessionStart(startDate, endDate);
 
-            // Generate 1 to 5 sessions per user
-            int sessionCount = sessionGenerator.generateSessionCount(
-                    config.getMinSessionsPerUser(),
-                    config.getMaxSessionsPerUser()
-            );
+        SendEventsStats sendEventsStats = users.parallelStream()
+                .map(userId -> generateDataForUser(userId, sessionStart))
+                .reduce(SendEventsStats.getAccumulator())
+                .get();
 
-            for (int j = 0; j < sessionCount; j++) {
-                String sessionId = sessionGenerator.generateSessionId();
+        log.info("\nTest data generation completed!");
+        log.info("Successfully sent: {} events", sendEventsStats.successCount());
+        log.info("Failed to send: {} events", sendEventsStats.failureCount());
 
-                LocalDateTime sessionStart = getSessionStart(startDate, endDate);
+        long endTime = System.nanoTime();
+        long durationNanos = endTime - startTime;
+        double durationSeconds = durationNanos / 1_000_000_000.0; // Convert nanoseconds to seconds
 
-                List<EventRequestDto> events = generateEvents(userId, sessionId, sessionStart);
-
-                SendEventsResult sendEventsResult = sendEventsToApi(events);
-
-                successCount += sendEventsResult.successCount();
-                failureCount += sendEventsResult.failureCount();
-
-            }
-
-            // Print progress every 10 users
-            if ((i + 1) % 10 == 0) {
-                System.out.println("Processed " + (i + 1) + " users...");
-            }
-        }
-
-        System.out.println("\nTest data generation completed!");
-        System.out.println("Successfully sent: " + successCount + " events");
-        System.out.println("Failed to send: " + failureCount + " events");
+        log.info("Total execution time: {} seconds", String.format("%.2f", durationSeconds));
 
         // Run analytics validation
         LocalDateTime validationStart = LocalDateTime.of(startDate, LocalTime.MIDNIGHT);
@@ -89,7 +61,22 @@ public class TestDataManager {
         analyticsValidator.runAllValidations(validationStart, validationEnd);
     }
 
-    private static LocalDateTime getSessionStart(LocalDate startDate, LocalDate endDate) {
+    private SendEventsStats generateDataForUser(String userId, LocalDateTime sessionStart) {
+        int sessionCount = sessionGenerator.generateSessionCount(
+                config.getMinSessionsPerUser(),
+                config.getMaxSessionsPerUser()
+        );
+
+        return IntStream.range(0, sessionCount)
+                .boxed()
+                .map(item -> sessionGenerator.generateSessionId())
+                .map(s -> generateEvents(userId, s, sessionStart))
+                .map(this::sendEventsToApi)
+                .reduce(SendEventsStats.getAccumulator())
+                .get();
+    }
+
+    private LocalDateTime getSessionStart(LocalDate startDate, LocalDate endDate) {
         // Select a random date within the range for this session
         long daysBetween = startDate.until(endDate).getDays();
         long randomDays = new Random().nextInt((int) daysBetween + 1);
@@ -103,7 +90,7 @@ public class TestDataManager {
         return LocalDateTime.of(sessionDate, randomTime);
     }
 
-    private SendEventsResult sendEventsToApi(List<EventRequestDto> events) {
+    private SendEventsStats sendEventsToApi(List<EventRequestDto> events) {
         int successCount = 0;
         int failureCount = 0;
         for (EventRequestDto event : events) {
@@ -112,25 +99,28 @@ public class TestDataManager {
                 if (success) {
                     successCount++;
                     if (config.isVerbose()) {
-                        System.out.println("Successfully sent event: " + event.eventType() +
-                                " for user " + event.userId());
+                        log.debug("Successfully sent event: {} for user {}", event.eventType(), event.userId());
                     }
                 } else {
                     failureCount++;
-                    System.err.println("Failed to send event: " + event.eventType() +
-                            " for user " + event.userId());
+                    log.error("Failed to send event: {} for user {}", event.eventType(), event.userId());
                 }
             } else {
                 failureCount++;
-                System.err.println("Invalid event: " + event.eventType() +
-                        " for user " + event.userId());
+                log.error("Invalid event: {} for user {}", event.eventType(), event.userId());
             }
         }
 
-        return new SendEventsResult(successCount, failureCount);
+        return new SendEventsStats(successCount, failureCount);
     }
 
-    private record SendEventsResult(int successCount, int failureCount) {
+    private record SendEventsStats(int successCount, int failureCount) {
+        public static BinaryOperator<SendEventsStats> getAccumulator() {
+            return (s1, s2) -> new SendEventsStats(
+                    s1.successCount() + s2.successCount(),
+                    s1.failureCount() + s2.failureCount()
+            );
+        }
     }
 
     private List<EventRequestDto> generateEvents(String userId, String sessionId, LocalDateTime sessionStart) {

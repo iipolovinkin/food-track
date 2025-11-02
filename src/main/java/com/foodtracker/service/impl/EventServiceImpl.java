@@ -22,7 +22,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event trackEvent(EventRequestDto eventRequest) {
-        log.info("Tracking event: type={}, userId={}, timestamp={}",
+        log.debug("Tracking event: type={}, userId={}, timestamp={}",
                 eventRequest.eventType(), eventRequest.userId(), eventRequest.timestamp());
 
         // Create event entity from DTO
