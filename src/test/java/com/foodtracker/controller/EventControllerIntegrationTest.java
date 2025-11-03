@@ -5,7 +5,6 @@ import com.foodtracker.FoodTrackerApplication;
 import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.model.Event;
 import com.foodtracker.repository.EventRepository;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -72,7 +71,7 @@ class EventControllerIntegrationTest {
         // Verify event was saved to database
         List<Event> events = eventRepository.findAll();
         assertThat(events).hasSize(1);
-        Event savedEvent = events.get(0);
+        Event savedEvent = events.getFirst();
         assertThat(savedEvent.getEventType()).isEqualTo("screen_viewed");
         assertThat(savedEvent.getUserId()).isEqualTo("user_123");
         assertThat(savedEvent.getSessionId()).isEqualTo("session_456");
@@ -173,7 +172,7 @@ class EventControllerIntegrationTest {
 
         // Verify event was saved with special characters
         List<Event> events = eventRepository.findAll();
-        Event savedEvent = events.get(events.size() - 1); // Last added event
+        Event savedEvent = events.getLast(); // Last added event
         assertThat(savedEvent.getUserId()).isEqualTo("user_special!@#$%");
         assertThat(savedEvent.getProperties())
                 .containsEntry("category", "burger & pizza")
@@ -200,7 +199,7 @@ class EventControllerIntegrationTest {
         // Additional verification of database persistence
         List<Event> events = eventRepository.findAll();
         assertThat(events).isNotEmpty();
-        Event latestEvent = events.get(events.size() - 1);
+        Event latestEvent = events.getLast();
         assertThat(latestEvent.getEventType()).isEqualTo("order_placed");
         assertThat(latestEvent.getProperties()).containsEntry("orderId", "order_123").containsEntry("amount", 29.99);
     }
