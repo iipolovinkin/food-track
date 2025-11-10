@@ -38,7 +38,6 @@ class EventControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-//    private WebTestClient client;
 
     @Autowired
     private EventRepository eventRepository;
@@ -48,7 +47,6 @@ class EventControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clean up any existing events before each test
         eventRepository.deleteAll();
     }
 
