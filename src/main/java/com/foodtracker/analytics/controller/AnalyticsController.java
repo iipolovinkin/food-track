@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,8 +43,8 @@ public class AnalyticsController {
             @Parameter(description = "Date in ISO format (e.g., 2024-01-01)", required = true)
             @RequestParam String date) {
         try {
-            java.time.LocalDate localDate = java.time.LocalDate.parse(date);
-            java.time.LocalDateTime startOfDay = localDate.atStartOfDay();
+            LocalDate localDate = java.time.LocalDate.parse(date);
+            LocalDateTime startOfDay = localDate.atStartOfDay();
             long dauCount = analyticsService.getDistinctUserCountByEventTypeAndDate(eventType, startOfDay);
             return ResponseEntity.ok(dauCount);
         } catch (Exception e) {
