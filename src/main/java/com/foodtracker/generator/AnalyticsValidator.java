@@ -1,8 +1,10 @@
 package com.foodtracker.generator;
 
-import com.foodtracker.dto.analytics.ConversionFunnelResponse;
-import com.foodtracker.model.Event;
-import com.foodtracker.service.EventService;
+import com.foodtracker.analytics.dto.ConversionFunnelResponse;
+import com.foodtracker.analytics.service.AnalyticsService;
+import com.foodtracker.shared.model.Event;
+import com.foodtracker.tracking.service.EventService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -11,21 +13,19 @@ import java.util.List;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class AnalyticsValidator {
 
     private final EventService eventService;
-
-    public AnalyticsValidator(EventService eventService) {
-        this.eventService = eventService;
-    }
+    private final AnalyticsService analyticsService;
 
     public void validateDAU(String eventType, LocalDateTime date) {
-        long dauCount = eventService.getDistinctUserCountByEventTypeAndDate(eventType, date);
+        long dauCount = analyticsService.getDistinctUserCountByEventTypeAndDate(eventType, date);
         log.info("DAU for {} on {}: {}", eventType, date.toLocalDate(), dauCount);
     }
 
     public void validateConversionFunnel(String category, LocalDateTime start, LocalDateTime end) {
-        ConversionFunnelResponse response = eventService.getConversionFunnelAnalytics(category, start, end);
+        ConversionFunnelResponse response = analyticsService.getConversionFunnelAnalytics(category, start, end);
         log.info("Conversion Funnel for {}:", category);
         log.info("  Viewed: {}", response.getViewedCount());
         log.info("  Added: {}", response.getAddedCount());

@@ -1,4 +1,4 @@
-package com.foodtracker.model;
+package com.foodtracker.shared.model;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;

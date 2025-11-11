@@ -1,4 +1,4 @@
-package com.foodtracker.controller;
+package com.foodtracker.architecture;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
-@AnalyzeClasses(packages = "com.foodtracker.controller")
+@AnalyzeClasses(packages = {"com.foodtracker.tracking.controller", "com.foodtracker.analytics.controller"})
 @Slf4j
 public class SwaggerAnnotationTest {
 

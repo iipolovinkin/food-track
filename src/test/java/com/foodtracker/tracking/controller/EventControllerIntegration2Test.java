@@ -1,22 +1,25 @@
-package com.foodtracker.controller;
+package com.foodtracker.tracking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodtracker.FoodTrackerApplication;
 import com.foodtracker.dto.EventRequestDto;
-import com.foodtracker.model.Event;
-import com.foodtracker.repository.EventRepository;
+import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.EventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,14 +30,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DirtiesContext
 @Tag("integration")
-@ExtendWith(SpringExtension.class)
+@Tag("container")
+@Testcontainers
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {FoodTrackerApplication.class})
 @AutoConfigureMockMvc
-class EventControllerIntegrationTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class EventControllerIntegration2Test {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("foodtracker_test")
+            .withUsername("test")
+            .withPassword("test");
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,8 +55,16 @@ class EventControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
     @BeforeEach
     void setUp() {
+        // Clean up any existing events before each test
         eventRepository.deleteAll();
     }
 
