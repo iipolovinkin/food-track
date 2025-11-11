@@ -1,11 +1,10 @@
 package com.foodtracker.generator;
 
-import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.generator.config.GeneratorConfig;
+import com.foodtracker.generator.gateway.tracking.TrackingEventRequestDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
@@ -39,7 +38,7 @@ public class EventGenerator {
         this.config = config;
     }
     
-    public EventRequestDto generateEvent(String eventType, String userId, String sessionId, LocalDateTime timestamp, String category) {
+    public TrackingEventRequestDto generateEvent(String eventType, String userId, String sessionId, LocalDateTime timestamp, String category) {
         Map<String, Object> properties = new HashMap<>();
         
         switch (eventType) {
@@ -94,7 +93,7 @@ public class EventGenerator {
                 break;
         }
         
-        return new EventRequestDto(
+        return new TrackingEventRequestDto(
             eventType,
             userId,
             sessionId,

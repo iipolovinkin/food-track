@@ -1,7 +1,8 @@
 package com.foodtracker.generator;
 
-import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.generator.config.GeneratorConfig;
+import com.foodtracker.generator.gateway.tracking.TrackingEventRequestDto;
+import com.foodtracker.generator.gateway.tracking.TrackingGateway;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class TestDataManager {
     private final SessionGenerator sessionGenerator;
     private final EventGenerator eventGenerator;
     private final JourneyBuilder journeyBuilder;
-    private final ApiServiceClient apiServiceClient;
+    private final TrackingGateway trackingGateway;
     private final AnalyticsValidator analyticsValidator;
 
     public void generateTestData() {
@@ -90,12 +91,12 @@ public class TestDataManager {
         return LocalDateTime.of(sessionDate, randomTime);
     }
 
-    private SendEventsStats sendEventsToApi(List<EventRequestDto> events) {
+    private SendEventsStats sendEventsToApi(List<TrackingEventRequestDto> events) {
         int successCount = 0;
         int failureCount = 0;
-        for (EventRequestDto event : events) {
-            if (apiServiceClient.validateEvent(event)) {
-                boolean success = apiServiceClient.sendEvent(event);
+        for (TrackingEventRequestDto event : events) {
+            if (trackingGateway.validateEvent(event)) {
+                boolean success = trackingGateway.sendEvent(event);
                 if (success) {
                     successCount++;
                     if (config.isVerbose()) {
@@ -123,13 +124,13 @@ public class TestDataManager {
         }
     }
 
-    private List<EventRequestDto> generateEvents(String userId, String sessionId, LocalDateTime sessionStart) {
+    private List<TrackingEventRequestDto> generateEvents(String userId, String sessionId, LocalDateTime sessionStart) {
         String category = eventGenerator.getRandomCategory();
 
         // Decide the type of journey for this session
         double journeyType = Math.random();
 
-        List<EventRequestDto> events;
+        List<TrackingEventRequestDto> events;
         if (journeyType < 0.2) { // 20% chance of partial journey
             int maxStage = new Random().nextInt(5) + 2; // Stages 2-6
             events = journeyBuilder.buildPartialJourney(userId, sessionId, sessionStart, category, maxStage);

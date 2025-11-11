@@ -3,7 +3,6 @@ package com.foodtracker.generator;
 import com.foodtracker.analytics.dto.ConversionFunnelResponse;
 import com.foodtracker.analytics.service.AnalyticsService;
 import com.foodtracker.shared.model.Event;
-import com.foodtracker.tracking.service.EventService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class AnalyticsValidator {
 
-    private final EventService eventService;
     private final AnalyticsService analyticsService;
 
     public void validateDAU(String eventType, LocalDateTime date) {
@@ -35,7 +33,7 @@ public class AnalyticsValidator {
 
     public void validatePopularItems() {
         // Get all item_viewed events to identify popular items
-        List<Event> itemViewedEvents = eventService.getEventsByType("item_viewed");
+        List<Event> itemViewedEvents = getEventsByType("item_viewed");
 
         // Group by item_id and count occurrences
         java.util.Map<String, Integer> itemCounts = new java.util.HashMap<>();
@@ -56,8 +54,8 @@ public class AnalyticsValidator {
     }
 
     public void validateCartToOrderConversion() {
-        List<Event> checkoutStartedEvents = eventService.getEventsByType("checkout_started");
-        List<Event> orderPlacedEvents = eventService.getEventsByType("order_placed");
+        List<Event> checkoutStartedEvents = getEventsByType("checkout_started");
+        List<Event> orderPlacedEvents = getEventsByType("order_placed");
 
         double conversionRate = !checkoutStartedEvents.isEmpty() ?
                 (double) orderPlacedEvents.size() / checkoutStartedEvents.size() * 100 : 0;
@@ -82,5 +80,9 @@ public class AnalyticsValidator {
         validateCartToOrderConversion();
 
         log.info("--- End of Analytics Validation ---\n");
+    }
+
+    private List<Event> getEventsByType(String eventType) {
+        return analyticsService.getEventsByType(eventType);
     }
 }

@@ -1,5 +1,6 @@
-package com.foodtracker.dto;
+package com.foodtracker.tracking.controller;
 
+import com.foodtracker.trackingapi.EventRequest;
 import com.foodtracker.validation.UnsafeMap;
 import com.foodtracker.validation.UnsafeString;
 import com.foodtracker.validation.ValidProperties;
@@ -41,5 +42,5 @@ public record EventRequestDto(
         @ValidProperties
         @UnsafeMap
         Map<String, Object> properties
-) {
+) implements EventRequest {
 }

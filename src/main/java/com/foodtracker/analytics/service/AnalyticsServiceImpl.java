@@ -46,4 +46,19 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 Map.of("timeRange", String.format("%s to %s", start, end))
         );
     }
+
+    @Override
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
+    }
+
+    @Override
+    public List<Event> getEventsByType(String eventType) {
+        return eventRepository.findByEventType(eventType);
+    }
+
+    @Override
+    public List<Event> getEventsByUser(String userId) {
+        return eventRepository.findByUserId(userId);
+    }
 }

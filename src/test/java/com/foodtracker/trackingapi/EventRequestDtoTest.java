@@ -1,5 +1,6 @@
-package com.foodtracker.dto;
+package com.foodtracker.trackingapi;
 
+import com.foodtracker.tracking.controller.EventRequestDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;

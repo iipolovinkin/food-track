@@ -2,7 +2,6 @@ package com.foodtracker.tracking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodtracker.FoodTrackerApplication;
-import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.shared.model.Event;
 import com.foodtracker.shared.repository.EventRepository;
 import org.junit.jupiter.api.BeforeEach;

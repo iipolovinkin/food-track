@@ -1,8 +1,7 @@
-package com.foodtracker.generator;
+package com.foodtracker.generator.gateway.tracking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.foodtracker.dto.EventRequestDto;
 import com.foodtracker.generator.config.GeneratorConfig;
 import org.springframework.stereotype.Component;
 
@@ -12,18 +11,18 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class ApiServiceClient {
-
+public class TrackingGatewayImpl implements TrackingGateway {
     private final GeneratorConfig config;
     private final ObjectMapper objectMapper;
 
-    public ApiServiceClient(GeneratorConfig config) {
+    public TrackingGatewayImpl(GeneratorConfig config) {
         this.config = config;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
     }
 
-    public boolean sendEvent(EventRequestDto event) {
+    @Override
+    public boolean sendEvent(TrackingEventRequestDto event) {
         try {
             URL url = new URL(config.getApiBaseUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -49,8 +48,8 @@ public class ApiServiceClient {
         }
     }
 
-    public boolean validateEvent(EventRequestDto event) {
-        // Perform basic validation of the event
+    @Override
+    public boolean validateEvent(TrackingEventRequestDto event) {
         return event.eventType() != null && !event.eventType().trim().isEmpty() &&
                 event.userId() != null && !event.userId().trim().isEmpty() &&
                 event.sessionId() != null && !event.sessionId().trim().isEmpty() &&

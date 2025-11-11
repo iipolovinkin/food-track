@@ -23,4 +23,19 @@ public interface AnalyticsService {
      */
     ConversionFunnelResponse getConversionFunnelAnalytics(String category, LocalDateTime start, LocalDateTime end);
 
+    /**
+     * Get all events
+     */
+    List<Event> getAllEvents();
+
+    /**
+     * Get events by event type
+     */
+    List<Event> getEventsByType(String eventType);
+
+    /**
+     * Get events by user ID
+     */
+    List<Event> getEventsByUser(String userId);
+
 }
