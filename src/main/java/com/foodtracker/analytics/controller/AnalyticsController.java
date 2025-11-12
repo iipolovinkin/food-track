@@ -3,7 +3,7 @@ package com.foodtracker.analytics.controller;
 import com.foodtracker.analytics.dto.ConversionFunnelResponse;
 import com.foodtracker.analytics.service.AnalyticsService;
 import com.foodtracker.shared.model.Event;
-import com.foodtracker.validation.UnsafeString;
+import com.foodtracker.core.validation.UnsafeString;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,5 +1,6 @@
 package com.foodtracker.generator;
 
+import com.foodtracker.analytics.AnalyticsGateway;
 import com.foodtracker.analytics.dto.ConversionFunnelResponse;
 import com.foodtracker.analytics.service.AnalyticsService;
 import com.foodtracker.shared.model.Event;
@@ -16,9 +17,10 @@ import java.util.List;
 public class AnalyticsValidator {
 
     private final AnalyticsService analyticsService;
+    private final AnalyticsGateway analyticsGateway;
 
     public void validateDAU(String eventType, LocalDateTime date) {
-        long dauCount = analyticsService.getDistinctUserCountByEventTypeAndDate(eventType, date);
+        long dauCount = analyticsGateway.getDistinctUserCountByEventTypeAndDate(eventType, date);
         log.info("DAU for {} on {}: {}", eventType, date.toLocalDate(), dauCount);
     }
 

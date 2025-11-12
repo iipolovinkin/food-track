@@ -1,9 +1,9 @@
 package com.foodtracker.tracking.controller;
 
 import com.foodtracker.trackingapi.EventRequest;
-import com.foodtracker.validation.UnsafeMap;
-import com.foodtracker.validation.UnsafeString;
-import com.foodtracker.validation.ValidProperties;
+import com.foodtracker.core.validation.UnsafeMap;
+import com.foodtracker.core.validation.UnsafeString;
+import com.foodtracker.core.validation.ValidProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

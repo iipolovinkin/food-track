@@ -2,7 +2,7 @@ package com.foodtracker.generator.gateway.tracking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.foodtracker.generator.config.GeneratorConfig;
+import com.foodtracker.config.TrackingConfig;
 import org.springframework.stereotype.Component;
 
 import java.io.OutputStream;
@@ -12,19 +12,19 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class TrackingGatewayImpl implements TrackingGateway {
-    private final GeneratorConfig config;
+    private final TrackingConfig trackingConfig;
     private final ObjectMapper objectMapper;
 
-    public TrackingGatewayImpl(GeneratorConfig config) {
-        this.config = config;
+    public TrackingGatewayImpl(TrackingConfig trackingConfig) {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
+        this.trackingConfig = trackingConfig;
     }
 
     @Override
     public boolean sendEvent(TrackingEventRequestDto event) {
         try {
-            URL url = new URL(config.getApiBaseUrl());
+            URL url = new URL(trackingConfig.getApiBaseUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");

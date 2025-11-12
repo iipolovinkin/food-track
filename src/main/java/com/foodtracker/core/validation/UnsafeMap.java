@@ -1,4 +1,4 @@
-package com.foodtracker.validation;
+package com.foodtracker.core.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -8,11 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PropertiesValidator.class)
-public @interface ValidProperties {
-    String message() default "Properties contain invalid content";
+@Constraint(validatedBy = UnsafeMapValidator.class)
+public @interface UnsafeMap {
+    String message() default "Field contains unsafe content";
 
     Class<?>[] groups() default {};
 

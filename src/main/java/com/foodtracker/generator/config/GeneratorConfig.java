@@ -8,28 +8,23 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "generator")
 public class GeneratorConfig {
-    
+
     /**
      * Number of users to generate
      */
     private int userCount = 75;
-    
-    /**
-     * Base URL for the API endpoint
-     */
-    private String apiBaseUrl = "http://localhost:8080/api/track";
-    
+
     /**
      * Date range for events (in days from now)
      */
     private int daysFromNow = 7;
-    
+
     /**
      * Number of sessions per user (min and max)
      */
     private int minSessionsPerUser = 1;
     private int maxSessionsPerUser = 5;
-    
+
     /**
      * Probability of different event types (0.0 to 1.0)
      */
@@ -40,17 +35,17 @@ public class GeneratorConfig {
     private double checkoutStartedProbability = 0.4;
     private double orderPlacedProbability = 0.3;
     private double paymentFailedProbability = 0.1;
-    
+
     /**
      * Batch size for API submissions
      */
     private int batchSize = 10;
-    
+
     /**
      * Enable verbose logging
      */
     private boolean verbose = false;
-    
+
     /**
      * Category distribution (0.0 to 1.0)
      */

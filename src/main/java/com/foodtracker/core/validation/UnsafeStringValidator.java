@@ -1,6 +1,6 @@
-package com.foodtracker.validation;
+package com.foodtracker.core.validation;
 
-import com.foodtracker.util.InputSanitizer;
+import com.foodtracker.core.util.InputSanitizer;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

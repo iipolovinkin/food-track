@@ -1,4 +1,4 @@
-package com.foodtracker.validation;
+package com.foodtracker.core.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

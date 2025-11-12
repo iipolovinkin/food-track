@@ -1,4 +1,4 @@
-package com.foodtracker.util;
+package com.foodtracker.core.util;
 
 import java.util.Collection;
 import java.util.Map;
