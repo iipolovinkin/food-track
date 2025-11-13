@@ -12,5 +12,5 @@ public class AnalyticsConfig {
     /**
      * Base URL for the analytics API endpoint
      */
-    private String apiBaseUrl = "http://localhost:8080/api";
+    private String apiBaseUrl;
 }

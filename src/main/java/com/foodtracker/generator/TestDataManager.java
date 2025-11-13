@@ -1,7 +1,7 @@
 package com.foodtracker.generator;
 
 import com.foodtracker.generator.config.GeneratorConfig;
-import com.foodtracker.generator.gateway.tracking.TrackingEventRequestDto;
+import com.foodtracker.api.tracking.TrackingEventRequestDto;
 import com.foodtracker.generator.gateway.tracking.TrackingGateway;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

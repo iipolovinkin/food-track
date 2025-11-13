@@ -2,6 +2,7 @@ package com.foodtracker.generator.gateway.tracking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.foodtracker.api.tracking.TrackingEventRequestDto;
 import com.foodtracker.config.TrackingConfig;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class TrackingGatewayImpl implements TrackingGateway {
     @Override
     public boolean sendEvent(TrackingEventRequestDto event) {
         try {
-            URL url = new URL(trackingConfig.getApiBaseUrl());
+            URL url = new URL(trackingConfig.getApiBaseUrl() + "/api/track");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");

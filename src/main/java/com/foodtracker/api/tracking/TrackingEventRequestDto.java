@@ -1,6 +1,4 @@
-package com.foodtracker.generator.gateway.tracking;
-
-import com.foodtracker.trackingapi.EventRequest;
+package com.foodtracker.api.tracking;
 
 import java.time.LocalDateTime;
 import java.util.Map;

@@ -1,6 +1,8 @@
-package com.foodtracker.analytics;
+package com.foodtracker.generator.gateway.analytics;
 
-import com.foodtracker.analytics.dto.ConversionFunnelResponse;
+import com.foodtracker.api.analytics.TrackEvent;
+import com.foodtracker.api.analytics.ConversionFunnelResponse;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +17,7 @@ public interface AnalyticsGateway {
      * Get daily active users for a specific event type and date.
      *
      * @param eventType Type of event to analyze
-     * @param date Date to analyze in LocalDate format
+     * @param date      Date to analyze in LocalDate format
      * @return Count of daily active users
      */
     Long getDailyActiveUsers(String eventType, LocalDate date);
@@ -23,9 +25,9 @@ public interface AnalyticsGateway {
     /**
      * Get conversion funnel analytics for a specific category within a date range.
      *
-     * @param category Category to analyze (e.g., pizza, burger)
+     * @param category  Category to analyze (e.g., pizza, burger)
      * @param startDate Start date and time for the analysis
-     * @param endDate End date and time for the analysis
+     * @param endDate   End date and time for the analysis
      * @return Conversion funnel response with analytics data
      */
     ConversionFunnelResponse getConversionFunnel(String category, LocalDateTime startDate, LocalDateTime endDate);
@@ -35,7 +37,7 @@ public interface AnalyticsGateway {
      *
      * @return List of all events
      */
-    List<com.foodtracker.shared.model.Event> getAllEvents();
+    List<TrackEvent> getAllEvents();
 
     /**
      * Get events filtered by event type
@@ -43,7 +45,7 @@ public interface AnalyticsGateway {
      * @param eventType Type of event to filter by
      * @return List of events matching the type
      */
-    List<com.foodtracker.shared.model.Event> getEventsByType(String eventType);
+    List<TrackEvent> getEventsByType(String eventType);
 
     /**
      * Get events for a specific user
@@ -51,5 +53,5 @@ public interface AnalyticsGateway {
      * @param userId ID of the user to retrieve events for
      * @return List of events for the specified user
      */
-    List<com.foodtracker.shared.model.Event> getEventsByUser(String userId);
+    List<TrackEvent> getEventsByUser(String userId);
 }

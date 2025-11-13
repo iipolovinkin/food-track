@@ -1,6 +1,6 @@
 package com.foodtracker.analytics.controller;
 
-import com.foodtracker.analytics.dto.ConversionFunnelResponse;
+import com.foodtracker.api.analytics.ConversionFunnelResponse;
 import com.foodtracker.analytics.service.AnalyticsService;
 import com.foodtracker.shared.model.Event;
 import com.foodtracker.core.validation.UnsafeString;

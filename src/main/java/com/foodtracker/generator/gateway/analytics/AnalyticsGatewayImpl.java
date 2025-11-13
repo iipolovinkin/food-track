@@ -1,10 +1,12 @@
-package com.foodtracker.analytics;
+package com.foodtracker.generator.gateway.analytics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.foodtracker.analytics.dto.ConversionFunnelResponse;
+import com.foodtracker.api.analytics.TrackEvent;
+import com.foodtracker.api.analytics.ConversionFunnelResponse;
+import com.foodtracker.api.analytics.TrackEventDto;
 import com.foodtracker.config.AnalyticsConfig;
-import com.foodtracker.shared.model.Event;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -20,8 +22,10 @@ import java.util.List;
  * Implementation of AnalyticsGateway that makes HTTP calls to analytics endpoints.
  */
 @Component
+@Slf4j
 public class AnalyticsGatewayImpl implements AnalyticsGateway {
 
+    public static final String PATH = "/api/analytics";
     private final AnalyticsConfig analyticsConfig;
     private final ObjectMapper objectMapper;
 
@@ -34,7 +38,8 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     @Override
     public Long getDailyActiveUsers(String eventType, LocalDate date) {
         try {
-            String urlString = analyticsConfig.getApiBaseUrl() + "/api/analytics/dau?eventType=" + eventType + "&date=" + date.toString();
+            String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/dau?eventType=" + eventType + "&date=" + date.toString();
+            log.info("urlString: {}", urlString);
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -66,7 +71,7 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     @Override
     public ConversionFunnelResponse getConversionFunnel(String category, LocalDateTime startDate, LocalDateTime endDate) {
         try {
-            String urlString = analyticsConfig.getApiBaseUrl() + "/api/analytics/conversion-funnel?" +
+            String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/conversion-funnel?" +
                     "category=" + category +
                     "&startDate=" + startDate.toString() +
                     "&endDate=" + endDate.toString();
@@ -100,9 +105,9 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     }
 
     @Override
-    public List<Event> getAllEvents() {
+    public List<TrackEvent> getAllEvents() {
         try {
-            String urlString = analyticsConfig.getApiBaseUrl() + "/api/analytics/events";
+            String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/events";
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -120,7 +125,8 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 in.close();
 
                 // Parse the JSON response to list of events
-                Event[] eventsArray = objectMapper.readValue(response.toString(), Event[].class);
+//                return objectMapper.readValue(response.toString(), List<TrackEvent>.class);
+                TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
                 System.err.println("Error getting all events: HTTP " + responseCode);
@@ -134,9 +140,9 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     }
 
     @Override
-    public List<Event> getEventsByType(String eventType) {
+    public List<TrackEvent> getEventsByType(String eventType) {
         try {
-            String urlString = analyticsConfig.getApiBaseUrl() + "/api/analytics/events/" + eventType;
+            String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/events/" + eventType;
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -154,7 +160,7 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 in.close();
 
                 // Parse the JSON response to list of events
-                Event[] eventsArray = objectMapper.readValue(response.toString(), Event[].class);
+                TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
                 System.err.println("Error getting events by type: HTTP " + responseCode);
@@ -168,9 +174,9 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     }
 
     @Override
-    public List<Event> getEventsByUser(String userId) {
+    public List<TrackEvent> getEventsByUser(String userId) {
         try {
-            String urlString = analyticsConfig.getApiBaseUrl() + "/api/analytics/users/" + userId + "/events";
+            String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/users/" + userId + "/events";
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -188,7 +194,7 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 in.close();
 
                 // Parse the JSON response to list of events
-                Event[] eventsArray = objectMapper.readValue(response.toString(), Event[].class);
+                TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
                 System.err.println("Error getting events by user: HTTP " + responseCode);

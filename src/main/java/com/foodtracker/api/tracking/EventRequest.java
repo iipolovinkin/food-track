@@ -1,4 +1,4 @@
-package com.foodtracker.trackingapi;
+package com.foodtracker.api.tracking;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

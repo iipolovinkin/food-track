@@ -1,5 +1,7 @@
 package com.foodtracker.generator.gateway.tracking;
 
+import com.foodtracker.api.tracking.TrackingEventRequestDto;
+
 public interface TrackingGateway {
 
     /**

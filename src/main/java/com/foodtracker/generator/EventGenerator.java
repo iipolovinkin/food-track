@@ -1,7 +1,7 @@
 package com.foodtracker.generator;
 
 import com.foodtracker.generator.config.GeneratorConfig;
-import com.foodtracker.generator.gateway.tracking.TrackingEventRequestDto;
+import com.foodtracker.api.tracking.TrackingEventRequestDto;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

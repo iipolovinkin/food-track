@@ -1,6 +1,6 @@
 package com.foodtracker.tracking.controller;
 
-import com.foodtracker.trackingapi.EventRequest;
+import com.foodtracker.api.tracking.EventRequest;
 import com.foodtracker.core.validation.UnsafeMap;
 import com.foodtracker.core.validation.UnsafeString;
 import com.foodtracker.core.validation.ValidProperties;

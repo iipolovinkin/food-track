@@ -1,4 +1,4 @@
-package com.foodtracker.analytics.dto;
+package com.foodtracker.api.analytics;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -11,22 +11,22 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Response DTO for conversion funnel analytics")
-public class ConversionFunnelResponse {
+public class ConversionFunnelResponse implements ConversionFunnel {
     @Schema(description = "Category being analyzed", example = "pizza", requiredMode = Schema.RequiredMode.REQUIRED)
     private String category;
-    
+
     @Schema(description = "Number of items viewed", example = "100", requiredMode = Schema.RequiredMode.REQUIRED)
     private long viewedCount;
-    
+
     @Schema(description = "Number of items added to cart", example = "75", requiredMode = Schema.RequiredMode.REQUIRED)
     private long addedCount;
-    
+
     @Schema(description = "Number of items ordered", example = "50", requiredMode = Schema.RequiredMode.REQUIRED)
     private long orderedCount;
-    
+
     @Schema(description = "Conversion rate as a percentage", example = "50.0", requiredMode = Schema.RequiredMode.REQUIRED)
     private double conversionRate;
-    
+
     @Schema(description = "Additional metrics for the conversion funnel")
     private Map<String, Object> additionalMetrics;
 }

@@ -1,13 +1,13 @@
 package com.foodtracker.generator;
 
-import com.foodtracker.analytics.AnalyticsGateway;
-import com.foodtracker.analytics.dto.ConversionFunnelResponse;
-import com.foodtracker.analytics.service.AnalyticsService;
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.generator.gateway.analytics.AnalyticsGateway;
+import com.foodtracker.api.analytics.TrackEvent;
+import com.foodtracker.api.analytics.ConversionFunnelResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,17 +16,20 @@ import java.util.List;
 @AllArgsConstructor
 public class AnalyticsValidator {
 
-    private final AnalyticsService analyticsService;
     private final AnalyticsGateway analyticsGateway;
 
-    public void validateDAU(String eventType, LocalDateTime date) {
-        long dauCount = analyticsGateway.getDistinctUserCountByEventTypeAndDate(eventType, date);
-        log.info("DAU for {} on {}: {}", eventType, date.toLocalDate(), dauCount);
+    public void validateDAU(String eventType, LocalDate date) {
+        long dauCount = analyticsGateway.getDailyActiveUsers(eventType, date);
+        log.info("DAU for {} on {}: {}", eventType, date, dauCount);
     }
 
     public void validateConversionFunnel(String category, LocalDateTime start, LocalDateTime end) {
-        ConversionFunnelResponse response = analyticsService.getConversionFunnelAnalytics(category, start, end);
+        ConversionFunnelResponse response = analyticsGateway.getConversionFunnel(category, start, end);
         log.info("Conversion Funnel for {}:", category);
+        if (response == null) {
+            log.error("ConversionFunnelResponse is null: {}", response);
+            return;
+        }
         log.info("  Viewed: {}", response.getViewedCount());
         log.info("  Added: {}", response.getAddedCount());
         log.info("  Ordered: {}", response.getOrderedCount());
@@ -35,11 +38,11 @@ public class AnalyticsValidator {
 
     public void validatePopularItems() {
         // Get all item_viewed events to identify popular items
-        List<Event> itemViewedEvents = getEventsByType("item_viewed");
+        List<TrackEvent> itemViewedEvents = getEventsByType("item_viewed");
 
         // Group by item_id and count occurrences
         java.util.Map<String, Integer> itemCounts = new java.util.HashMap<>();
-        for (Event event : itemViewedEvents) {
+        for (TrackEvent event : itemViewedEvents) {
             if (event.getProperties() != null && event.getProperties().containsKey("item_id")) {
                 String itemId = (String) event.getProperties().get("item_id");
                 itemCounts.put(itemId, itemCounts.getOrDefault(itemId, 0) + 1);
@@ -56,8 +59,8 @@ public class AnalyticsValidator {
     }
 
     public void validateCartToOrderConversion() {
-        List<Event> checkoutStartedEvents = getEventsByType("checkout_started");
-        List<Event> orderPlacedEvents = getEventsByType("order_placed");
+        List<TrackEvent> checkoutStartedEvents = getEventsByType("checkout_started");
+        List<TrackEvent> orderPlacedEvents = getEventsByType("order_placed");
 
         double conversionRate = !checkoutStartedEvents.isEmpty() ?
                 (double) orderPlacedEvents.size() / checkoutStartedEvents.size() * 100 : 0;
@@ -71,7 +74,7 @@ public class AnalyticsValidator {
     public void runAllValidations(LocalDateTime startDate, LocalDateTime endDate) {
         log.info("\n--- Analytics Validation Results ---");
 
-        validateDAU("app_opened", startDate);
+        validateDAU("app_opened", startDate.toLocalDate());
 
         validateConversionFunnel("pizza", startDate, endDate);
         validateConversionFunnel("burger", startDate, endDate);
@@ -84,7 +87,7 @@ public class AnalyticsValidator {
         log.info("--- End of Analytics Validation ---\n");
     }
 
-    private List<Event> getEventsByType(String eventType) {
-        return analyticsService.getEventsByType(eventType);
+    private List<TrackEvent> getEventsByType(String eventType) {
+        return analyticsGateway.getEventsByType(eventType);
     }
 }

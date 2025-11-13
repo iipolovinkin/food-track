@@ -1,5 +1,6 @@
 package com.foodtracker.shared.model;
 
+import com.foodtracker.api.analytics.TrackEvent;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.Map;
 @Data
 @Entity
 @Table(name = "events")
-public class Event {
+public class Event implements TrackEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
