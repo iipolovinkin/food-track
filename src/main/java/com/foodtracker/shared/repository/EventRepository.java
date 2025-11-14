@@ -1,6 +1,5 @@
 package com.foodtracker.shared.repository;
 
-import com.foodtracker.shared.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,7 +1,7 @@
 package com.foodtracker.analytics.service;
 
 import com.foodtracker.api.analytics.ConversionFunnelResponse;
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.Event;
 import com.foodtracker.shared.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

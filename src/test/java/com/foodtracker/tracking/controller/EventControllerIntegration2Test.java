@@ -2,7 +2,7 @@ package com.foodtracker.tracking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodtracker.FoodTrackerApplication;
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.Event;
 import com.foodtracker.shared.repository.EventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -32,18 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("integration")
 @Tag("container")
 @Testcontainers
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = {FoodTrackerApplication.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FoodTrackerApplication.class})
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class EventControllerIntegration2Test {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-            .withDatabaseName("foodtracker_test")
-            .withUsername("test")
-            .withPassword("test");
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15").withDatabaseName("foodtracker_test").withUsername("test").withPassword("test");
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,18 +65,10 @@ class EventControllerIntegration2Test {
     @Test
     void trackEvent_ValidEvent_ReturnsSuccess() throws Exception {
         // Given
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "screen_viewed",
-                "user_123",
-                "session_456",
-                LocalDateTime.now(),
-                Map.of("screen", "menu", "category", "pizza")
-        );
+        EventRequestDto eventRequestDto = new EventRequestDto("screen_viewed", "user_123", "session_456", LocalDateTime.now(), Map.of("screen", "menu", "category", "pizza"));
 
         // When & Then
-        performTrackEvent(eventRequestDto)
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Event tracked successfully with ID:")));
+        performTrackEvent(eventRequestDto).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("Event tracked successfully with ID:")));
 
         // Verify event was saved to database
         List<Event> events = eventRepository.findAll();
@@ -97,8 +84,7 @@ class EventControllerIntegration2Test {
     void trackEvent_MissingRequiredFields_ReturnsBadRequest() throws Exception {
         // Given
         // Empty DTO to trigger validation errors
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "",  // Invalid - empty event type
+        EventRequestDto eventRequestDto = new EventRequestDto("",  // Invalid - empty event type
                 "",  // Invalid - empty user ID
                 "",  // Invalid - empty session ID
                 null, // Invalid - null timestamp
@@ -106,49 +92,29 @@ class EventControllerIntegration2Test {
         );
 
         // When & Then
-        performTrackEvent(eventRequestDto)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Event type cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Session ID cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("User ID cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp cannot be null")));
+        performTrackEvent(eventRequestDto).andExpect(status().isBadRequest()).andExpect(content().string(org.hamcrest.Matchers.containsString("Event type cannot be blank"))).andExpect(content().string(org.hamcrest.Matchers.containsString("Session ID cannot be blank"))).andExpect(content().string(org.hamcrest.Matchers.containsString("User ID cannot be blank"))).andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp cannot be null")));
     }
 
     private ResultActions performTrackEvent(EventRequestDto eventRequestDto) throws Exception {
-        return mockMvc.perform(post("/api/track")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(eventRequestDto)));
+        return mockMvc.perform(post("/api/track").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(eventRequestDto)));
     }
 
     @Test
     void trackEvent_InvalidFutureTimestamp_ReturnsBadRequest() throws Exception {
         // Given
         // DTO with future timestamp to trigger validation error
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "screen_viewed",
-                "user_123",
-                "session_456",
-                LocalDateTime.now().plusDays(1), // Invalid - future timestamp
-                Map.of("screen", "menu")
-        );
+        EventRequestDto eventRequestDto = new EventRequestDto("screen_viewed", "user_123", "session_456", LocalDateTime.now().plusDays(1), // Invalid - future timestamp
+                Map.of("screen", "menu"));
 
         // When & Then
-        performTrackEvent(eventRequestDto)
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp must be in the past or present, not in the future")));
+        performTrackEvent(eventRequestDto).andExpect(status().isBadRequest()).andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp must be in the past or present, not in the future")));
     }
 
     @Test
     void trackEvent_EventIsSavedToDatabase() throws Exception {
         // Given
         int initialCount = eventRepository.findAll().size();
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "item_viewed",
-                "user_789",
-                "session_abc",
-                LocalDateTime.now(),
-                Map.of("itemId", "pizza_123", "category", "pizza")
-        );
+        EventRequestDto eventRequestDto = new EventRequestDto("item_viewed", "user_789", "session_abc", LocalDateTime.now(), Map.of("itemId", "pizza_123", "category", "pizza"));
 
         // When
         performTrackEvent(eventRequestDto);
@@ -156,10 +122,7 @@ class EventControllerIntegration2Test {
         // Then
         List<Event> events = eventRepository.findAll();
         assertThat(events).hasSize(initialCount + 1);
-        Event savedEvent = events.stream()
-                .filter(event -> event.getUserId().equals("user_789"))
-                .findFirst()
-                .orElse(null);
+        Event savedEvent = events.stream().filter(event -> event.getUserId().equals("user_789")).findFirst().orElse(null);
         assertThat(savedEvent).isNotNull();
         assertThat(savedEvent.getEventType()).isEqualTo("item_viewed");
         assertThat(savedEvent.getSessionId()).isEqualTo("session_abc");
@@ -169,46 +132,25 @@ class EventControllerIntegration2Test {
     @Test
     void trackEvent_SpecialCharactersInProperties_ReturnsSuccess() throws Exception {
         // Given
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "screen_viewed",
-                "user_special!@#$%",
-                "session_456",
-                LocalDateTime.now(),
-                Map.of(
-                        "screen", "menu",
-                        "category", "burger & pizza",
-                        "description", "Special chars: àáâãäåæçèé"
-                )
-        );
+        EventRequestDto eventRequestDto = new EventRequestDto("screen_viewed", "user_special!@#$%", "session_456", LocalDateTime.now(), Map.of("screen", "menu", "category", "burger & pizza", "description", "Special chars: àáâãäåæçèé"));
 
         // When & Then
-        performTrackEvent(eventRequestDto)
-                .andExpect(status().isOk());
+        performTrackEvent(eventRequestDto).andExpect(status().isOk());
 
         // Verify event was saved with special characters
         List<Event> events = eventRepository.findAll();
         Event savedEvent = events.getLast(); // Last added event
         assertThat(savedEvent.getUserId()).isEqualTo("user_special!@#$%");
-        assertThat(savedEvent.getProperties())
-                .containsEntry("category", "burger & pizza")
-                .containsEntry("description", "Special chars: àáâãäåæçèé");
+        assertThat(savedEvent.getProperties()).containsEntry("category", "burger & pizza").containsEntry("description", "Special chars: àáâãäåæçèé");
     }
 
     @Test
     void trackEvent_ResponseCodeAndContentVerification() throws Exception {
         // Given
-        EventRequestDto eventRequestDto = new EventRequestDto(
-                "order_placed",
-                "user_999",
-                "session_888",
-                LocalDateTime.now(),
-                Map.of("orderId", "order_123", "amount", 29.99)
-        );
+        EventRequestDto eventRequestDto = new EventRequestDto("order_placed", "user_999", "session_888", LocalDateTime.now(), Map.of("orderId", "order_123", "amount", 29.99));
 
         // When & Then
-        performTrackEvent(eventRequestDto)
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("text/plain;charset=UTF-8")) // Response is a string
+        performTrackEvent(eventRequestDto).andExpect(status().isOk()).andExpect(content().contentType("text/plain;charset=UTF-8")) // Response is a string
                 .andExpect(content().string(org.hamcrest.Matchers.startsWith("Event tracked successfully")));
 
         // Additional verification of database persistence

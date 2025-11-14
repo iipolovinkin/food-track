@@ -1,6 +1,6 @@
 package com.foodtracker.tracking.controller;
 
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.Event;
 import com.foodtracker.tracking.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,7 +1,7 @@
 package com.foodtracker.analytics.service;
 
 import com.foodtracker.api.analytics.ConversionFunnelResponse;
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;

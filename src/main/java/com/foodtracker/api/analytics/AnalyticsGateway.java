@@ -1,7 +1,4 @@
-package com.foodtracker.generator.gateway.analytics;
-
-import com.foodtracker.api.analytics.TrackEvent;
-import com.foodtracker.api.analytics.ConversionFunnelResponse;
+package com.foodtracker.api.analytics;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

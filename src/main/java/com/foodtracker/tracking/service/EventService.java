@@ -1,7 +1,7 @@
 package com.foodtracker.tracking.service;
 
 import com.foodtracker.tracking.controller.EventRequestDto;
-import com.foodtracker.shared.model.Event;
+import com.foodtracker.shared.repository.Event;
 
 public interface EventService {
 

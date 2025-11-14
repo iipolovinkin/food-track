@@ -1,6 +1,6 @@
 package com.foodtracker.generator;
 
-import com.foodtracker.generator.gateway.analytics.AnalyticsGateway;
+import com.foodtracker.api.analytics.AnalyticsGateway;
 import com.foodtracker.api.analytics.TrackEvent;
 import com.foodtracker.api.analytics.ConversionFunnelResponse;
 import lombok.AllArgsConstructor;

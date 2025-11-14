@@ -1,8 +1,7 @@
-package com.foodtracker.generator.gateway.tracking;
+package com.foodtracker.api.tracking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.foodtracker.api.tracking.TrackingEventRequestDto;
 import com.foodtracker.config.TrackingConfig;
 import org.springframework.stereotype.Component;
 

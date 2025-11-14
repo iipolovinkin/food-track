@@ -1,4 +1,4 @@
-package com.foodtracker.shared.model;
+package com.foodtracker.shared.repository;
 
 import com.foodtracker.api.analytics.TrackEvent;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;

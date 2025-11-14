@@ -1,10 +1,7 @@
-package com.foodtracker.generator.gateway.analytics;
+package com.foodtracker.api.analytics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.foodtracker.api.analytics.TrackEvent;
-import com.foodtracker.api.analytics.ConversionFunnelResponse;
-import com.foodtracker.api.analytics.TrackEventDto;
 import com.foodtracker.config.AnalyticsConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
