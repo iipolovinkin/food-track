@@ -55,12 +55,11 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
 
                 return Long.valueOf(response.toString());
             } else {
-                System.err.println("Error getting DAU: HTTP " + responseCode);
+                log.error("Error getting DAU: HTTP {}", responseCode);
                 return 0L;
             }
         } catch (Exception e) {
-            System.err.println("Error getting daily active users: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error getting daily active users:", e);
             return 0L;
         }
     }
@@ -91,12 +90,11 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
 
                 return objectMapper.readValue(response.toString(), ConversionFunnelResponse.class);
             } else {
-                System.err.println("Error getting conversion funnel: HTTP " + responseCode);
+                log.error("Error getting conversion funnel: HTTP {}", responseCode);
                 return null;
             }
         } catch (Exception e) {
-            System.err.println("Error getting conversion funnel: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error getting conversion funnel: ", e);
             return null;
         }
     }
@@ -126,13 +124,12 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
-                System.err.println("Error getting all events: HTTP " + responseCode);
-                return Arrays.asList();
+                log.error("Error getting all events: HTTP {}", responseCode);
+                return List.of();
             }
         } catch (Exception e) {
-            System.err.println("Error getting all events: " + e.getMessage());
-            e.printStackTrace();
-            return Arrays.asList();
+            log.error("Error getting all events: ", e);
+            return List.of();
         }
     }
 
@@ -160,13 +157,12 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
-                System.err.println("Error getting events by type: HTTP " + responseCode);
-                return Arrays.asList();
+                log.error("Error getting events by type: HTTP: {}", responseCode);
+                return List.of();
             }
         } catch (Exception e) {
-            System.err.println("Error getting events by type: " + e.getMessage());
-            e.printStackTrace();
-            return Arrays.asList();
+            log.error("Error getting events by type: ", e);
+            return List.of();
         }
     }
 
@@ -194,13 +190,12 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
                 TrackEventDto[] eventsArray = objectMapper.readValue(response.toString(), TrackEventDto[].class);
                 return Arrays.asList(eventsArray);
             } else {
-                System.err.println("Error getting events by user: HTTP " + responseCode);
-                return Arrays.asList();
+                log.error("Error getting events by user: HTTP {}", responseCode);
+                return List.of();
             }
         } catch (Exception e) {
-            System.err.println("Error getting events by user: " + e.getMessage());
-            e.printStackTrace();
-            return Arrays.asList();
+            log.error("Error getting events by user: ", e);
+            return List.of();
         }
     }
 }
