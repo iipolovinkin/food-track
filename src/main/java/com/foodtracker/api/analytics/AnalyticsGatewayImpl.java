@@ -36,7 +36,6 @@ public class AnalyticsGatewayImpl implements AnalyticsGateway {
     public Long getDailyActiveUsers(String eventType, LocalDate date) {
         try {
             String urlString = analyticsConfig.getApiBaseUrl() + PATH + "/dau?eventType=" + eventType + "&date=" + date.toString();
-            log.info("urlString: {}", urlString);
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
