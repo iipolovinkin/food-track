@@ -34,7 +34,7 @@ public interface AnalyticsGateway {
      *
      * @return List of all events
      */
-    List<TrackEvent> getAllEvents();
+    List<TrackEventDto> getAllEvents();
 
     /**
      * Get events filtered by event type

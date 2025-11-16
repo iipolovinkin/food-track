@@ -12,7 +12,7 @@ public class GeneratorConfig {
     /**
      * Number of users to generate
      */
-    private int userCount = 70;
+    private int userCount = 7;
 
     /**
      * Date range for events (in days from now)
