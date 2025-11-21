@@ -3,7 +3,7 @@ package com.foodtracker.analytics.service;
 import com.foodtracker.api.analytics.ConversionFunnelResponse;
 import com.foodtracker.shared.repository.Event;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface AnalyticsService {
@@ -11,17 +11,17 @@ public interface AnalyticsService {
     /**
      * Get distinct user count for an event type from a specific date
      */
-    long getDistinctUserCountByEventTypeAndDate(String eventType, LocalDateTime fromDate);
+    long getDistinctUserCountByEventTypeAndDate(String eventType, Instant fromDate);
 
     /**
      * Get events by event type within a time range
      */
-    List<Event> getEventsByTypeAndTimeRange(String eventType, LocalDateTime start, LocalDateTime end);
+    List<Event> getEventsByTypeAndTimeRange(String eventType, Instant start, Instant end);
 
     /**
      * Get conversion funnel analytics for a category within a time range
      */
-    ConversionFunnelResponse getConversionFunnelAnalytics(String category, LocalDateTime start, LocalDateTime end);
+    ConversionFunnelResponse getConversionFunnelAnalytics(String category, Instant start, Instant end);
 
     /**
      * Get all events

@@ -1,6 +1,6 @@
 package com.foodtracker.api.analytics;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 public interface TrackEvent {
@@ -12,7 +12,7 @@ public interface TrackEvent {
 
     String getSessionId();
 
-    LocalDateTime getTimestamp();
+    Instant getTimestamp();
 
     Map<String, Object> getProperties();
 }

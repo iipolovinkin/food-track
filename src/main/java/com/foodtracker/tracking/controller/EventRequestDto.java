@@ -10,7 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 @Schema(description = "Request DTO for tracking events")
@@ -43,4 +45,11 @@ public record EventRequestDto(
         @UnsafeMap
         Map<String, Object> properties
 ) implements EventRequest {
+
+    public Instant getInstantTimestamp() {
+        if (timestamp == null) {
+            return null;
+        }
+        return timestamp.toInstant(ZoneOffset.UTC);
+    }
 }

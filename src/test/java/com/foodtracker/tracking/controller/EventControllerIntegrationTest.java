@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,7 +66,7 @@ class EventControllerIntegrationTest {
         // When & Then
         performTrackEvent(eventRequestDto)
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Event tracked successfully with ID:")));
+                .andExpect(content().string(containsString("Event tracked successfully with ID:")));
 
         // Verify event was saved to database
         List<Event> events = eventRepository.findAll();
@@ -92,10 +93,10 @@ class EventControllerIntegrationTest {
         // When & Then
         performTrackEvent(eventRequestDto)
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Event type cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Session ID cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("User ID cannot be blank")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp cannot be null")));
+                .andExpect(content().string(containsString("Event type cannot be blank")))
+                .andExpect(content().string(containsString("Session ID cannot be blank")))
+                .andExpect(content().string(containsString("User ID cannot be blank")))
+                .andExpect(content().string(containsString("Timestamp cannot be null")));
     }
 
     private ResultActions performTrackEvent(EventRequestDto eventRequestDto) throws Exception {
@@ -119,7 +120,7 @@ class EventControllerIntegrationTest {
         // When & Then
         performTrackEvent(eventRequestDto)
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Timestamp must be in the past or present, not in the future")));
+                .andExpect(content().string(containsString("Timestamp must be in the past or present, not in the future")));
     }
 
     @Test
@@ -193,7 +194,7 @@ class EventControllerIntegrationTest {
         performTrackEvent(eventRequestDto)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/plain;charset=UTF-8")) // Response is a string
-                .andExpect(content().string(org.hamcrest.Matchers.startsWith("Event tracked successfully")));
+                .andExpect(content().string(startsWith("Event tracked successfully")));
 
         // Additional verification of database persistence
         List<Event> events = eventRepository.findAll();

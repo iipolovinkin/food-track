@@ -8,7 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 @Data
@@ -29,8 +29,8 @@ public class Event implements TrackEvent {
     @Column(name = "session_id", nullable = false)
     private String sessionId;
 
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
+    @Column(nullable = false, columnDefinition = "timestamptz")
+    private Instant timestamp;
 
     @Type(JsonBinaryType.class)
     @JdbcTypeCode(SqlTypes.JSON)

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -19,17 +19,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final EventRepository eventRepository;
 
     @Override
-    public long getDistinctUserCountByEventTypeAndDate(String eventType, LocalDateTime fromDate) {
+    public long getDistinctUserCountByEventTypeAndDate(String eventType, Instant fromDate) {
         return eventRepository.countDistinctUsersByEventTypeAndTimestampAfter(eventType, fromDate);
     }
 
     @Override
-    public List<Event> getEventsByTypeAndTimeRange(String eventType, LocalDateTime start, LocalDateTime end) {
+    public List<Event> getEventsByTypeAndTimeRange(String eventType, Instant start, Instant end) {
         return eventRepository.findByEventTypeAndTimestampBetween(eventType, start, end);
     }
 
     @Override
-    public ConversionFunnelResponse getConversionFunnelAnalytics(String category, LocalDateTime start, LocalDateTime end) {
+    public ConversionFunnelResponse getConversionFunnelAnalytics(String category, Instant start, Instant end) {
         // Use database-level filtering for better performance
         long viewedCount = eventRepository.countByEventTypeAndCategoryAndTimestampBetween("item_viewed", category, start, end);
         long addedCount = eventRepository.countByEventTypeAndCategoryAndTimestampBetween("item_added_to_cart", category, start, end);

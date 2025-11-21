@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @RestController
@@ -43,9 +45,10 @@ public class AnalyticsController {
             @Parameter(description = "Date in ISO format (e.g., 2024-01-01)", required = true)
             @RequestParam String date) {
         try {
-            LocalDate localDate = java.time.LocalDate.parse(date);
+            LocalDate localDate = LocalDate.parse(date);
             LocalDateTime startOfDay = localDate.atStartOfDay();
-            long dauCount = analyticsService.getDistinctUserCountByEventTypeAndDate(eventType, startOfDay);
+            Instant instant = startOfDay.toInstant(ZoneOffset.UTC);
+            long dauCount = analyticsService.getDistinctUserCountByEventTypeAndDate(eventType, instant);
             return ResponseEntity.ok(dauCount);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(0L);
@@ -75,7 +78,10 @@ public class AnalyticsController {
             LocalDateTime startDateTime = LocalDateTime.parse(startDate);
             LocalDateTime endDateTime = LocalDateTime.parse(endDate);
 
-            ConversionFunnelResponse analytics = analyticsService.getConversionFunnelAnalytics(category, startDateTime, endDateTime);
+            Instant start = startDateTime.toInstant(ZoneOffset.UTC);
+            Instant end = endDateTime.toInstant(ZoneOffset.UTC);
+
+            ConversionFunnelResponse analytics = analyticsService.getConversionFunnelAnalytics(category, start, end);
             return ResponseEntity.ok(analytics);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);

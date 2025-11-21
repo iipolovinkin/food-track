@@ -2,7 +2,7 @@ package com.foodtracker.api.analytics;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 @Data
@@ -16,7 +16,7 @@ public class TrackEventDto implements TrackEvent {
 
     private String sessionId;
 
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     private Map<String, Object> properties;
 }

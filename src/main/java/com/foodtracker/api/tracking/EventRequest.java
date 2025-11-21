@@ -2,7 +2,9 @@ package com.foodtracker.api.tracking;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 @Schema(description = "Request DTO for tracking events")
@@ -22,4 +24,8 @@ public interface EventRequest {
 
     @Schema(description = "Additional properties for the event", example = "{\"screen\": \"menu\", \"category\": \"pizza\"}")
     Map<String, Object> properties();
+
+    default Instant getInstantTimestamp() {
+        return timestamp().toInstant(ZoneOffset.UTC);
+    }
 }
