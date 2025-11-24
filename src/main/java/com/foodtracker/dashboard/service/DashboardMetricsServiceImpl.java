@@ -26,12 +26,12 @@ public class DashboardMetricsServiceImpl implements DashboardMetricsService {
         var cachedMetrics = cacheService.get(key, DashboardMetricsResponseDto.class);
 
         if (cachedMetrics.isEmpty()) {
-            log.debug("Cache miss for dashboard metrics, recalculating...");
+            log.info("Cache miss for dashboard metrics, recalculating...");
             var metrics = businessService.getDashboardMetrics();
             cacheService.put(key, metrics, CACHE_EXPIRY_SECONDS);
             return metrics;
         } else {
-            log.debug("Cache hit for dashboard metrics");
+            log.info("Cache hit for dashboard metrics");
             return cachedMetrics.get();
         }
     }
@@ -42,12 +42,12 @@ public class DashboardMetricsServiceImpl implements DashboardMetricsService {
         var cachedMetrics = cacheService.get(key, DauMetricsDto.class);
 
         if (cachedMetrics.isEmpty()) {
-            log.debug("Cache miss for DAU metrics, recalculating...");
+            log.info("Cache miss for DAU metrics, recalculating...");
             var metrics = businessService.getDauMetrics();
             cacheService.put(key, metrics, CACHE_EXPIRY_SECONDS);
             return metrics;
         } else {
-            log.debug("Cache hit for DAU metrics");
+            log.info("Cache hit for DAU metrics");
             return cachedMetrics.get();
         }
     }
@@ -58,12 +58,12 @@ public class DashboardMetricsServiceImpl implements DashboardMetricsService {
         var cachedMetrics = cacheService.get(key, ConversionMetricsDto.class);
 
         if (cachedMetrics.isEmpty()) {
-            log.debug("Cache miss for conversion metrics, recalculating for category: {}", category);
+            log.info("Cache miss for conversion metrics, recalculating for category: {}", category);
             var metrics = businessService.getConversionMetrics(category);
             cacheService.put(key, metrics, CACHE_EXPIRY_SECONDS);
             return metrics;
         } else {
-            log.debug("Cache hit for conversion metrics");
+            log.info("Cache hit for conversion metrics");
             return cachedMetrics.get();
         }
     }
@@ -74,12 +74,12 @@ public class DashboardMetricsServiceImpl implements DashboardMetricsService {
         var cachedMetrics = cacheService.get(key, PopularItemsMetricsDto.class);
 
         if (cachedMetrics.isEmpty()) {
-            log.debug("Cache miss for popular items metrics, recalculating for category: {}", category);
+            log.info("Cache miss for popular items metrics, recalculating for category: {}", category);
             var metrics = businessService.getPopularItemsMetrics(category);
             cacheService.put(key, metrics, CACHE_EXPIRY_SECONDS);
             return metrics;
         } else {
-            log.debug("Cache hit for popular items metrics");
+            log.info("Cache hit for popular items metrics");
             return cachedMetrics.get();
         }
     }
