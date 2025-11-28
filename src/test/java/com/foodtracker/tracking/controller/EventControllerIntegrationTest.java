@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodtracker.FoodTrackerApplication;
 import com.foodtracker.shared.repository.Event;
 import com.foodtracker.shared.repository.EventRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = {FoodTrackerApplication.class})
 @TestPropertySource(locations = "classpath:application-test.properties")
 @AutoConfigureMockMvc
+@Sql(value = "clear-event-table.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class EventControllerIntegrationTest {
 
     @Autowired
@@ -47,11 +49,6 @@ class EventControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
-        eventRepository.deleteAll();
-    }
-
     @Test
     void trackEvent_ValidEvent_ReturnsSuccess() throws Exception {
         // Given
@@ -60,6 +57,7 @@ class EventControllerIntegrationTest {
                 "user_123",
                 "session_456",
                 LocalDateTime.now(),
+
                 Map.of("screen", "menu", "category", "pizza")
         );
 
