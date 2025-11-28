@@ -21,6 +21,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/analytics/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()  // Allow WebSocket connections
                         // Require admin role for analytics
                         // .hasRole("ADMIN")
                         // .anyRequest().authenticated()
