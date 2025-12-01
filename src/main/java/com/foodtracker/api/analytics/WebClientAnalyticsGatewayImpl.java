@@ -114,6 +114,9 @@ public class WebClientAnalyticsGatewayImpl implements AnalyticsGateway {
                     .bodyToMono(TrackEventDto[].class)
                     .timeout(Duration.ofSeconds(30))
                     .block();
+            if (eventsArray == null) {
+                return List.of();
+            }
             return Arrays.asList(eventsArray);
         } catch (WebClientResponseException e) {
             log.error("HTTP error getting events by type (status {}):", e.getStatusCode(), e);
