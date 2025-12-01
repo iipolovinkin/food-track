@@ -17,11 +17,9 @@ import java.time.Duration;
 @Component
 @Slf4j
 public class WebClientTrackingGatewayImpl implements TrackingGateway {
-    private final TrackingConfig trackingConfig;
     private final WebClient webClient;
 
     public WebClientTrackingGatewayImpl(TrackingConfig trackingConfig) {
-        this.trackingConfig = trackingConfig;
         this.webClient = WebClient.builder()
                 .baseUrl(trackingConfig.getApiBaseUrl())
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10MB max

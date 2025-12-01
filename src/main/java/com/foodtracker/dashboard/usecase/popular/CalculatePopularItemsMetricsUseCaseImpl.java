@@ -1,16 +1,19 @@
 package com.foodtracker.dashboard.usecase.popular;
 
-import com.foodtracker.dashboard.dto.*;
+import com.foodtracker.dashboard.dto.PopularItemDto;
+import com.foodtracker.dashboard.dto.PopularItemsMetricsDto;
 import com.foodtracker.shared.repository.Event;
 import com.foodtracker.shared.repository.EventRepository;
+import com.foodtracker.shared.service.TimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class CalculatePopularItemsMetricsUseCaseImpl implements CalculatePopularItemsMetricsUseCase {
 
     private final EventRepository eventRepository;
+    private final TimeService timeService;
 
     @Override
     public PopularItemsMetricsDto calculatePopularItemsMetrics(String category) {
@@ -60,7 +64,7 @@ public class CalculatePopularItemsMetricsUseCaseImpl implements CalculatePopular
 
         return PopularItemsMetricsDto.builder()
                 .popularItems(popularItems)
-                .timestamp(LocalDateTime.now())
+                .timestamp(timeService.getLocalDateTimeNow())
                 .category(category)
                 .build();
     }

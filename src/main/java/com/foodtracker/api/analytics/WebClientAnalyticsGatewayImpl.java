@@ -24,11 +24,9 @@ import java.util.List;
 public class WebClientAnalyticsGatewayImpl implements AnalyticsGateway {
 
     public static final String PATH = "/api/analytics";
-    private final AnalyticsConfig analyticsConfig;
     private final WebClient webClient;
 
     public WebClientAnalyticsGatewayImpl(AnalyticsConfig analyticsConfig) {
-        this.analyticsConfig = analyticsConfig;
 
         this.webClient = WebClient.builder()
                 .baseUrl(analyticsConfig.getApiBaseUrl())
@@ -93,7 +91,10 @@ public class WebClientAnalyticsGatewayImpl implements AnalyticsGateway {
                     .bodyToMono(TrackEventDto[].class)
                     .timeout(Duration.ofSeconds(30))
                     .block();
-            return Arrays.asList(eventsArray);
+            if (eventsArray == null) {
+                return List.of();
+            }
+            return List.of(eventsArray);
         } catch (WebClientResponseException e) {
             log.error("HTTP error getting all events (status {}):", e.getStatusCode(), e);
             return List.of();
